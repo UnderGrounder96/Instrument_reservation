@@ -8,3 +8,7 @@ a {
   background-size: cover;
   color: white;
 }
+
+img:hover {
+  opacity: 0.8;
+}
