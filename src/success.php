@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
           $_SESSION["id_user"] = $row["id_user"];
           $_SESSION["login_user"] = $user;
 
-          if ($row["admin"] == 1) 
+          if ($row["admin"] == 1)
             $_SESSION["admin"] = $row["admin"];
 
           $result = $db->query("SELECT id_instrument FROM rights WHERE id_user='{$_SESSION['id_user']}' AND power>0 ORDER BY id_instrument LIMIT 1;");
@@ -36,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             header("location: profile.php?inst={$row['id_instrument']}");
           } else
             header("location: profile.php");
-
         } else
           throw new Exception("Your Username or Password is invalid.");
       } catch (Exception $e) {
