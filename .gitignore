@@ -1,0 +1,8 @@
+# private
+TODO.txt
+
+# env and package-lock file
+.env
+
+# Dependency directories
+vendor/
