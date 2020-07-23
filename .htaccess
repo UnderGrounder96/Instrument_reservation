@@ -1,0 +1,14 @@
+#Bad Request
+#ErrorDocument 400 /400.php
+
+#Unautorized
+#ErrorDocument 401 /401.php
+
+#Forbidden
+#ErrorDocument 403 /403.php
+
+#Not Found
+ErrorDocument 404 /404.php
+
+#Internal Server Error
+#ErrorDocument 500 /500.php
