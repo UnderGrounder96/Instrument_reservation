@@ -8,7 +8,7 @@ Currently live at: https://instrument-reservation.herokuapp.com/
 
 Getting Started
 ------------------
-This program was created under Windows 7 (x64) Operative System using PHP 5.6, Apache 2.4, Composer 1.10, MySQL 5.7, HTML5, W3C and jQuery.
+This program was originally created under Windows 7 (x64) Operative System using PHP 5.6, Apache 2.4, Composer 1.10, MySQL 5.7, HTML5, W3C and jQuery.
 
 Prerequisites
 ---------------
