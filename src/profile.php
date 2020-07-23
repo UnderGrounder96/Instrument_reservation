@@ -45,10 +45,10 @@ static $err1 = "";
               </tr>
             </thead>
             <tbody>
-            <?php
-            while ($row = $result->fetch_assoc())
-              echo "<tr><td><a href=\"profile.php?inst={$row['id_instrument']}\">{$row['id_instrument']}</a></td><td><a href=\"profile.php?inst={$row['id_instrument']}\">{$row['model']}</a></td></tr>";
-            ?>
+              <?php
+              while ($row = $result->fetch_assoc())
+                echo "<tr><td><a href=\"profile.php?inst={$row['id_instrument']}\">{$row['id_instrument']}</a></td><td><a href=\"profile.php?inst={$row['id_instrument']}\">{$row['model']}</a></td></tr>";
+              ?>
             </tbody>
 
           </table>
@@ -143,12 +143,16 @@ static $err1 = "";
             <button class="w3-button w3-black w3-round">Submit</button>
 
             <div class="w3-panel">
-              <i class="w3-text-red"><?php if (isset($_SESSION["error"])) print $_SESSION["error"];
-                                      else if (empty($_GET["inst"])) {
-                                        $_SESSION["error"] = "Please select an instrument.";
-                                        print $_SESSION["error"];
-                                      }
-                                      unset($_SESSION["error"]); ?></i>
+              <i class="w3-text-red">
+                <?php
+                if (isset($_SESSION["error"]))
+                  print $_SESSION["error"];
+                else if (empty($_GET["inst"])) {
+                  $_SESSION["error"] = "Please select an instrument.";
+                  print $_SESSION["error"];
+                }
+                unset($_SESSION["error"]); ?>
+              </i>
             </div>
           </form>
 
@@ -202,8 +206,10 @@ static $err1 = "";
           </form>
 
           <div class="w3-panel">
-            <i class="w3-text-red"><?php if (isset($_SESSION["error"])) print $_SESSION["error"];
-                                    unset($_SESSION["error"]); ?></i>
+            <i class="w3-text-red">
+              <?php if (isset($_SESSION["error"])) print $_SESSION["error"];
+              unset($_SESSION["error"]); ?>
+            </i>
           </div>
         </fieldset>
       </div>

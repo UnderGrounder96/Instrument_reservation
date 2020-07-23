@@ -4,7 +4,23 @@ a {
 }
 
 .jumbotron {
-  background-image: url('../img/jumbo.jpg');
+  background-image: url("../img/jumbo.jpg");
   background-size: cover;
   color: white;
+}
+
+img:hover {
+  opacity: 0.8;
+}
+
+.spinner {
+  width: 4rem;
+  height: 4rem;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: url("../img/spinner.gif") no-repeat scroll center #fff;
 }

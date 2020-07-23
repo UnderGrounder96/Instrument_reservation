@@ -15,17 +15,11 @@ require_once("head.php");
   ?>
 
   <main class="container text-center" role="main">
-<pre class="lead">
-  <?php echo $_SERVER['REQUEST_URI']; ?> does not exist, sorry.
+    <pre class="lead">
+<?php echo $_SERVER['REQUEST_URI']; ?> does not exist, sorry.
 </pre>
 
-    <img
-        class="img-fluid mx-auto d-block"
-        loading="lazy"
-        src="../public/img/error.png"
-        loading="lazy"
-        alt="not_found"
-      />
+    <img class="img-fluid mx-auto d-block" loading="lazy" src="../public/img/error.png" loading="lazy" alt="not_found" />
   </main>
 
   <?php

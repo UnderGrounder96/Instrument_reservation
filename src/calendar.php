@@ -130,7 +130,7 @@ class Calendar
         $result = $db->query($sql);
 
         if ($db->affected_rows > 0) {
-          
+
           while ($row = $result->fetch_assoc()) {
             if ($this->currentDate > date('Y-m-d', strtotime('-1 day', strtotime($row["date_in"]))) && date('Y-m-d', strtotime($row["date_out"])) >= $this->currentDate) {
               if ($_SESSION["id_user"] == $row["id_user"])
