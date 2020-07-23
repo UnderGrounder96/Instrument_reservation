@@ -47,7 +47,7 @@ require_once("head.php");
 
             <div class="d-flex justify-content-center form-group">
               <label class="text-center">
-                <input type="submit" class="btn btn-success form-control" value="Log in" />
+                <input type="submit" class="btn btn-success form-control" value="Log in" style="-webkit-text-stroke-width: 0px;"/>
               </label>
             </div>
           </form>
