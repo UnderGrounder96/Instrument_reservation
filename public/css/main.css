@@ -4,6 +4,8 @@ a {
 }
 
 .jumbotron {
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: green;
   background-image: url("../img/jumbo.jpg");
   background-size: cover;
   color: white;
