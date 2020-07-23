@@ -1,0 +1,28 @@
+{
+  "name": "instrument/reservation",
+  "description": "reservation system",
+  "type": "project",
+  "homepage": "https://instrument-reservation.herokuapp.com",
+  "readme": "./README.md",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Lucio Afonso",
+      "homepage": "https://lucio-afonso-portfolio.herokuapp.com/",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "josegonzalez/dotenv": "3.2.*"
+  },
+  "require-dev": {
+    "heroku/heroku-buildpack-php": "*"
+  },
+  "config": {
+    "optimize-autoloader": true
+  },
+  "keywords": [
+    "instrument reservation system",
+    "reservation system"
+  ]
+}
