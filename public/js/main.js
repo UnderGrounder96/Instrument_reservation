@@ -1,5 +1,9 @@
 $.noConflict();
 
+jQuery(window).on("load", () => {
+  jQuery(".spinner").delay(1000).fadeOut(1000);
+});
+
 jQuery(() => {
   jQuery(".hide").hide();
 
