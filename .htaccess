@@ -8,7 +8,7 @@
 #ErrorDocument 403 /403.php
 
 #Not Found
-ErrorDocument 404 /src/404.php
+ErrorDocument 404 /404.php
 
 #Internal Server Error
 #ErrorDocument 500 /500.php

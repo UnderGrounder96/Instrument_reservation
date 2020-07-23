@@ -14,7 +14,7 @@ require_once("head.php");
   require_once("header.php");
   ?>
 
-  <main class="container" role="main">
+  <main class="container text-center" role="main">
 <pre class="lead">
   <?php echo $_SERVER['REQUEST_URI']; ?> does not exist, sorry.
 </pre>
