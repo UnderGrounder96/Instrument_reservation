@@ -7,7 +7,7 @@ $title_page = "Contact";
 require_once("head.php");
 ?>
 
-<body>
+<body class="container shadow">
   <noscript> Please turn on JavaScript or change browsers!</noscript>
 
   <?php

@@ -11,7 +11,7 @@ require_once("head.php");
 static $err1 = "";
 ?>
 
-<body>
+<body class="container shadow">
   <noscript> Please turn on JavaScript or change browsers!</noscript>
 
   <link rel="stylesheet" href="../public/css/calendar.css" />
@@ -37,7 +37,7 @@ static $err1 = "";
 
         if ($db->affected_rows > 0) {
         ?>
-          <table class="table-sm table table-hover justify-left" style="width:150px">
+          <table class="table-sm table shadow table-hover justify-left w-5">
             <thead>
               <tr>
                 <th>Id</th>
@@ -88,7 +88,7 @@ static $err1 = "";
         ?>
       </div>
 
-      <div class="container" style="position:relative;margin:auto;display:block;float-left"><br>
+      <div class="container" style="position:relative;margin:auto;display:block;float-left;"><br>
         <?php
         if (isset($_GET["inst"]))
           $_SESSION["idInst"] = $_GET["inst"];
@@ -312,8 +312,6 @@ static $err1 = "";
   ?>
 
   <script type="text/javascript">
-    $.noConflict();
-
     jQuery(function() {
       var maxLength = 50;
       jQuery(".hide").hide();
