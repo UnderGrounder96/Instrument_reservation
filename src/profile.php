@@ -37,7 +37,7 @@ static $err1 = "";
 
         if ($db->affected_rows > 0) {
         ?>
-          <table class="table-sm table shadow table-hover justify-left w-5">
+          <table class="table-sm table shadow table-hover justify-left w-25">
             <thead>
               <tr>
                 <th>Id</th>
