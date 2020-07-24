@@ -1,11 +1,11 @@
-<header class="site-header py-3 my-3 align-top border-bottom">
-  <nav class="navbar navbar-expand-lg font-weight-bold navbar-light bg-light">
+<header class="container site-header py-3 my-3 align-top border-bottom">
+  <nav class="navbar navbar-expand-lg font-weight-bold">
     <a class="navbar-brand" href="login.php">
       <img class="d-inline-flex" loading="lazy" width="55px" src="../public/img/favicon.png" alt="Logo" />
     </a>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon border-dark-1"></span>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="fa fa-bars fa-lg" style="font-size: 30px;"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarToggle">
@@ -40,6 +40,7 @@
         <?php
         }
         ?>
+
         <li class="nav-item">
           <a class="topRight" href="#">Policy</a>
         </li>

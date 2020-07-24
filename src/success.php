@@ -17,25 +17,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         if (preg_match("/[^A-Za-z0-9_]/", $user))
           throw new Exception("Your Username is invalid.");
 
-        $result = $db->query("SELECT id_user, admin FROM users WHERE username='{$user}' AND pass='{$pass}' AND active>0;");
+        $result = $db->query("SELECT id_user, pass, admin FROM users WHERE username='{$user}' AND active>0;");
         $row = $result->fetch_assoc();
 
-        // if result matched $user and $pass, table row must be 1 row
-        if ($db->affected_rows === 1) {
-          $_SESSION["id_user"] = $row["id_user"];
-          $_SESSION["login_user"] = $user;
+        if (password_verify($pass, $row["pass"])) {
+          if ($db->affected_rows === 1) {
+            $_SESSION["id_user"] = $row["id_user"];
+            $_SESSION["login_user"] = $user;
 
-          if ($row["admin"] == 1)
-            $_SESSION["admin"] = $row["admin"];
+            if ($row["admin"] == 1)
+              $_SESSION["admin"] = $row["admin"];
 
-          $result = $db->query("SELECT id_instrument FROM rights WHERE id_user='{$_SESSION['id_user']}' AND power>0 ORDER BY id_instrument LIMIT 1;");
-          $row = $result->fetch_assoc();
+            $result = $db->query("SELECT id_instrument FROM rights WHERE id_user='{$_SESSION['id_user']}' AND power>0 ORDER BY id_instrument LIMIT 1;");
+            $row = $result->fetch_assoc();
 
-          if (isset($row["id_instrument"])) {
-            $_SESSION["id_inst"] = $row["id_instrument"];
-            header("location: profile.php?inst={$row['id_instrument']}");
+            if (isset($row["id_instrument"])) {
+              $_SESSION["id_inst"] = $row["id_instrument"];
+              header("location: profile.php?inst={$row['id_instrument']}");
+            } else
+              header("location: profile.php");
           } else
-            header("location: profile.php");
+            throw new Exception("Your Username or Password is invalid.");
         } else
           throw new Exception("Your Username or Password is invalid.");
       } catch (Exception $e) {
@@ -44,30 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
       }
 
       break;
-
-
-    case "logAdm":
-      try {
-        if ($_POST["userType"] == "admin")
-          header("location: admin.php");
-
-        else {
-          $result = $db->query("SELECT id_instrument FROM rights WHERE id_user='{$_SESSION['id_user']}' AND power>0 ORDER BY id_instrument LIMIT 1;");
-          $row = $result->fetch_assoc();
-
-          if ($db->affected_rows > 0) {
-            $_SESSION["id_inst"] = $row['id_instrument'];
-            header("location: profile.php?inst={$row['id_instrument']}");
-          } else
-            header("location: profile.php");
-        }
-      } catch (Exception $e) {
-        $_SESSION["error"] = $e->getMessage();
-        header("location: login.php");
-      }
-
-      break;
-
 
     case "addRes":
       try {
@@ -121,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
           if ($_SESSION["date_out"] >= $_SESSION["date_in"]) {
             $sql = "SELECT id_instrument FROM reservations WHERE id_reservation='{$_SESSION['res']}';";
             $result = $db->query($sql);
-            $row = $result->fetch_array(MYSQLI_ASSOC);
+            $row = $result->fetch_assoc();
 
             $_SESSION["id_inst"] = $row["id_instrument"];
 
@@ -280,7 +258,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
           throw new Exception("This username already exist in the database.");
 
         else {
-          $sql = "INSERT INTO users (firstname, lastname, username, pass, active, email, admin) VALUES ('{$_SESSION['fname']}', '{$_SESSION['lname']}', '{$_SESSION['username']}', '{$_SESSION['password']}', '{$_SESSION['active']}', '{$_SESSION['email']}', '{$_SESSION['admin']}');";
+          $pass = password_hash($_POST["password"], PASSWORD_BCRYPT);
+          $sql = "INSERT INTO users (firstname, lastname, username, pass, active, email, admin) VALUES ('{$_SESSION['fname']}', '{$_SESSION['lname']}', '{$_SESSION['username']}', '{$pass}', '{$_SESSION['active']}', '{$_SESSION['email']}', '{$_SESSION['admin']}');";
+
+          unset($pass);
 
           if ($db->query($sql) === TRUE) {
             unset($_SESSION["fname"]);
@@ -333,7 +314,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
           throw new Exception("This username already exist in the database.");
 
         else {
-          $sql = "UPDATE users SET firstname='{$_SESSION['fname']}', lastname='{$_SESSION['lname']}', username='{$_SESSION['username']}', pass='{$_POST['password']}', active='{$_SESSION['active']}', email='{$_SESSION['email']}', admin='{$_SESSION['admin']}' WHERE id_user='{$_SESSION['id_user']}';";
+          $pass = password_hash($_POST["password"], PASSWORD_BCRYPT);
+
+          $sql = "UPDATE users SET firstname='{$_SESSION['fname']}', lastname='{$_SESSION['lname']}', username='{$_SESSION['username']}', pass='{$pass}', active='{$_SESSION['active']}', email='{$_SESSION['email']}', admin='{$_SESSION['admin']}' WHERE id_user='{$_SESSION['id_user']}';";
+
+          unset($pass);
 
           if ($db->query($sql) === TRUE) {
             unset($_SESSION["fname"]);

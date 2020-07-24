@@ -5,6 +5,13 @@ jQuery(window).on("load", () => {
 });
 
 jQuery(() => {
+  /* ----------------- CALC FULL HEIGHT ---------------------- */
+  getHeight();
+
+  jQuery(window).resize(() => {
+    getHeight();
+  });
+
   jQuery(".hide").hide();
 
   jQuery(".topRight").addClass("nav-item nav-link text-body");
@@ -24,6 +31,15 @@ jQuery(() => {
     jQuery("#rig1").show();
   });
 });
+
+function getHeight() {
+  let fullHeighMinusHeader =
+    jQuery(window).height() -
+    jQuery("header").outerHeight() -
+    jQuery("header").outerHeight() - 80;
+
+  jQuery("main").height(fullHeighMinusHeader.toFixed(2));
+}
 
 /*
 // NOT WORKING

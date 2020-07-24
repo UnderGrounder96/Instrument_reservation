@@ -87,7 +87,7 @@ CREATE TABLE `rights` (
   `id_instrument` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id_right`),
   UNIQUE KEY `idRights_UNIQUE` (`id_right`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -113,13 +113,13 @@ CREATE TABLE `users` (
   `first_name` varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `last_name` varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `username` varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `pass` varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `pass` varchar(60) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `email` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `admin` tinyint(1) unsigned NOT NULL,
   `active` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `idUser_UNIQUE` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,7 +129,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Lucio','Afonso','lucio','1234','undergrounder96@yahoo.com',1,1),(2,'Dummy','Test','user','2345','my@email.com',0,1);
+INSERT INTO `users` VALUES (1,'Lucio','Afonso','lucio','$2y$10$MtI6li6oUCIu5N4KzqA.dOwKoVkNjeMaKHtAa4vIoArynLUj.LCSC','undergrounder96@yahoo.com',1,1),(2,'Dummy','Test','user','$2y$10$7I2UQW6PxglTOvSXr/aAo.BwhaiVqsifUhWjth0GqJiiDHx0cCQ4S','my@email.com',0,1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -150,4 +150,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-14 13:58:48
+-- Dump completed on 2020-07-24 18:39:50

@@ -7,7 +7,7 @@ $title_page = "Home";
 require_once("head.php");
 ?>
 
-<body>
+<body class="container shadow">
   <noscript> Please turn on JavaScript or change browsers!</noscript>
 
   <?php
@@ -47,7 +47,7 @@ require_once("head.php");
 
             <div class="d-flex justify-content-center form-group">
               <label class="text-center">
-                <input type="submit" class="btn btn-success form-control" value="Log in" style="-webkit-text-stroke-width: 0px;"/>
+                <input type="submit" class="btn btn-outline-success form-control" value="Log in" />
               </label>
             </div>
           </form>
