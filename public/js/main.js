@@ -5,53 +5,68 @@ jQuery(window).on("load", () => {
 });
 
 jQuery(() => {
-  /* ----------------- CALC FULL HEIGHT ---------------------- */
+  // CALC FULL HEIGHT
   getHeight();
 
   jQuery(window).resize(() => {
     getHeight();
   });
 
+  jQuery(".validate").each(function () {
+    validate(this);
+
+    jQuery(this).keyup(function () {
+      validate(this);
+    });
+  });
+
   jQuery(".hide").hide();
 
-  jQuery(".topRight").addClass("nav-item nav-link text-body");
-
   jQuery("#inst").click(() => {
-    jQuery(".hide").hide();
+    _hide("#inst");
     jQuery("#inst1").show();
   });
 
   jQuery("#user").click(() => {
-    jQuery(".hide").hide();
+    _hide("#user");
     jQuery("#user1").show();
   });
 
   jQuery("#rig").click(() => {
-    jQuery(".hide").hide();
+    _hide("#rig");
     jQuery("#rig1").show();
   });
 });
+
+function _hide(toShow) {
+  jQuery(".hide").hide();
+  jQuery("li").removeClass("active");
+  jQuery(toShow).addClass("active");
+}
 
 function getHeight() {
   let fullHeighMinusHeader =
     jQuery(window).height() -
     jQuery("header").outerHeight() -
-    jQuery("header").outerHeight() - 80;
+    jQuery("footer").outerHeight() -
+    80;
 
   jQuery("main").height(fullHeighMinusHeader.toFixed(2));
 }
 
-/*
-// NOT WORKING
+// Validate Function
+function validate(input) {
+  let obj = jQuery(input);
 
-  <?php
-    if(isset($_GET["use"]) || isset($_GET["er"]))
-      echo "jQuery(\"#user1\").show();\n";
-
-    else if(isset($_GET["rig"]))
-      echo "jQuery(\"#rig1\").show()\n";
-
-    else
-      echo "jQuery(\"#inst1\").show();\n";
-  >
-*/
+  // Not empty
+  if (!/^[a-zA-Z0-9_ ]{1,30}$/.test(obj.val())) {
+    // Invalid
+    obj.css("border-color", "#FAC3C3");
+  } else {
+    // Valid
+    obj.css("border-color", "lightgreen");
+    if (obj.next().hasClass("error")) {
+      obj.next().remove();
+    }
+  }
+}

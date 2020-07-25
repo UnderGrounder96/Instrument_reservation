@@ -3,6 +3,7 @@
 
 <?php
 require_once("session.php");
+require_once("functions.php");
 
 // logs out all non-admin
 if (!isset($_SESSION["admin"])) {
@@ -13,7 +14,7 @@ if (!isset($_SESSION["admin"])) {
 $title_page = "Admin";
 require_once("head.php");
 
-static $err1 = "", $err2 = "", $err3 = "", $content;
+static $content = "";
 ?>
 
 <body class="container shadow">
@@ -24,355 +25,475 @@ static $err1 = "", $err2 = "", $err3 = "", $content;
   ?>
 
   <main class="container" role="main">
-
-    <div id="w3-top">
-      <header class="w3-container">
-        <div class="w3-container w3-right">
-          <h1> Welcome <?php echo $_SESSION["login_user"]; ?>,
-            <a href="logout.php">sign out</a>
-          </h1>
-        </div>
-      </header>
-    </div>
-
-    <div class="w3-container">
-      <ul class="w3-ul w3-hoverable w3-text-shadow w3-half w3-container" style="max-width:285px">
-        <li class="w3-padding-16" id="inst">Add/Change instrument</li>
-        <li class="w3-padding-16" id="rig">Add/Change rights</li>
-        <li class="w3-padding-16" id="user">Add/Change user</li>
+    <div class="container">
+      <ul class="nav nav-tabs list-inline mx-auto justify-content-center" role="tablist">
+        <li id="inst" class="nav-link list-inline-item">Add/Change instrument</li>
+        <li id="rig" class="nav-link list-inline-item">Add/Change rights</li>
+        <li id="user" class="nav-link list-inline-item">Add/Change user</li>
       </ul>
 
-      <fieldset class="w3-half w3-container " style="width:1300px">
-        <legend>Please choose and fill the form:</legend>
-
-        <div class="w3-container hide" id="inst1">
+      <div class="hide row container" id="inst1">
+        <form class="col container forml" action="success.php" method="post">
           <?php
           try {
-            echo "<form class=\"w3-container w3-half\" action=\"success.php\" method=\"post\">";
 
             if (isset($_GET["inst"])) {
               unset($_SESSION["rig"]);
               unset($_SESSION["user"]);
 
-              $_SESSION["inst"] = $_GET["inst"];
+              $_SESSION["inst"] = testInput($_GET["inst"]);
 
-              $sql = "SELECT * FROM instruments WHERE idInstrument='{$_SESSION['inst']}' ORDER BY idInstrument;";
+              $sql = "SELECT * FROM instruments WHERE id_instrument='{$_SESSION['inst']}' ORDER BY id_instrument;";
               $result = $db->query($sql);
 
-              if ($db->affected_rows > 0)
+              if ($db->affected_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                  $content = "<input type=\"hidden\" name=\"action\" value=\"editInst\">Model:<br>
-											<input type=\"text\" maxlength=\"30\" size=\"18\" name=\"model\" autofocus value=\"";
-                  if (isset($_SESSION["model"])) {
-                    $content .= "{$_SESSION['model']}";
-                    unset($_SESSION["model"]);
-                  } else $content .= "{$row['model']}";
-                  $content .= "\" required><br><br>
-											Is the device working? <br>1 - Yes, 0 - No. <br><br>
-											<input type=\"number\" name=\"active\" min=\"0\" max=\"1\" size=\"1\" value=\"";
-                  if (isset($_SESSION["active"])) {
-                    $content .= "{$_SESSION['active']}";
-                    unset($_SESSION["active"]);
-                  } else $content .= "{$row['active']}";
-                  $content .= "\" required><br><br>
-											<button class=\"w3-button w3-black w3-round\">Submit</button></form>";
-                }
+                  $content = "
+                    <input type=\"hidden\" name=\"action\" value=\"editInst\">
+                    <div class=\"form-group mt-3\">
+                    <label>Model:
+                    <input type=\"text\" class=\"form-control validate\" maxlength=\"30\" name=\"model\" autofocus value=\"{$row['model']}\" required>
+                    </label>
+                    </div>
 
-              else
-                throw new Exception("Error updating record: " . $db->error);
-            } else {
-              $content = "<input type=\"hidden\" name=\"action\" value=\"addInst\">Model:<br>
-									<input type=\"text\" maxlength=\"30\" size=\"18\" name=\"model\" autocomplete=\"off\" ";
-              if (isset($_SESSION["model"])) {
-                $content .= " value=\"{$_SESSION['model']}\"";
-                unset($_SESSION["model"]);
+                    <div class=\"form-group\">
+                    <label>Is the device working? <br>1 - Yes, 0 - No.
+                    <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" min=\"0\" max=\"1\" value=\"1\" style=\"width:90px\" required>
+                    </label>
+                    </div>
+
+                    <div class=\"form-group\">
+                      <input type=\"Submit\" class=\"btn btn-outline-primary btn-block btn-sm\" value=\"Edit\" style=\"width:90px\" />
+                    </div>";
+                }
+              } else {
+                throw new Exception("Could not find record <br />" . $db->error);
               }
-              $content .= " required><br><br>
-									Is the device working? <br>1 - Yes, 0 - No. <br><br>
-									<input type=\"number\" name=\"active\" min=\"0\" max=\"1\" size=\"1\" value=\"";
-              if (isset($_SESSION["active"])) {
-                $content .= "{$_SESSION['active']}";
-                unset($_SESSION["active"]);
-              } else $content .= "1";
-              $content .= "\" required><br><br>
-									<button class=\"w3-button w3-black w3-round\">Submit</button></form>";
+            } else {
+              $content = "<input type=\"hidden\" name=\"action\" value=\"addInst\">
+                <div class=\"form-group mt-3\">
+                <label>Model:
+                <input type=\"text\" class=\"form-control validate\" maxlength=\"30\" name=\"model\" autofocus autocomplete=\"off\" required>
+                </label>
+                </div>
+
+                <div class=\"form-group\">
+                <label>Is the device working? <br>1 - Yes, 0 - No.
+                <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" min=\"0\" max=\"1\" value=\"1\" style=\"width:90px\" required>
+                </label>
+                </div>
+
+                <div class=\"form-group\">
+                <input type=\"Submit\" class=\"btn btn-outline-success btn-block btn-sm\" value=\"Add\" style=\"width:90px\" />
+                </div>";
             }
 
             echo $content;
-
-            $sql = "SELECT * FROM instruments ORDER BY idInstrument;";
-            $result = $db->query($sql);
-
-            if ($db->affected_rows > 0) {
-              // output data of each row
-              echo "<table class=\"w3-table-all w3-half w3-right\" style=\"max-width:350px;\">";
-              echo "<tr><th>Id</th><th>Model</th><th>Active</th></tr>";
-
-              while ($row = $result->fetch_assoc())
-                echo "<tr><td><a href=\"admin.php?inst={$row['idInstrument']}\">{$row['idInstrument']}</a></td><td><a href=\"admin.php?inst={$row['idInstrument']}\">{$row['model']}</a></td><td><a href=\"admin.php?inst={$row['idInstrument']}\">{$row['active']}</a></td></tr>";
-
-              echo "</table>";
-            } else
-              throw new Exception("Error updating record: " . $db->error);
           } catch (Exception $e) {
-            $err1 = $e->getMessage();
+            $_SESSION["err1"] = $e->getMessage();
           }
-          ?>
-          <div class="w3-panel"><br>
-            <i class="w3-text-red">
-              <?php if (isset($_SESSION["err1"])) {
-                $err1 = $_SESSION["err1"];
-                unset($_SESSION["err1"]);
-              } else if (empty($_GET["inst"])) $err1 = "Please select an instrument or fill the form.";
-              print $err1; ?>
-            </i>
-          </div>
-        </div>
 
-        <div class="w3-container hide" id="rig1">
+          if (isset($_SESSION["err1"])) {
+            echo '
+            <div class="alert alert-danger mt-3" role="alert">
+              <em>'
+              . $_SESSION["err1"] .
+              '</em>
+            </div>';
+
+            unset($_SESSION["err1"]);
+          } else if (empty($_GET["inst"])) {
+            echo '
+            <div class="alert alert-secondary w-50 mt-3" role="alert">
+              <em>
+              Add or click to edit instrument.
+              </em>
+            </div>';
+          }
+
+          ?>
+        </form>
+
+        <div class="col-sm-3 mt-4 container table-responsive-sm">
+          <?php
+          $sql = "SELECT * FROM instruments ORDER BY id_instrument;";
+          $result = $db->query($sql);
+
+          if ($db->affected_rows > 0) {
+          ?>
+            <table class="table table-condensed table-hover">
+              <tr>
+                <th>Id</th>
+                <th>Model</th>
+                <th>Active</th>
+              </tr>
+            <?php
+            while ($row = $result->fetch_assoc())
+              echo "
+              <tr>
+              <td>
+                <a href='admin.php?inst={$row['id_instrument']}'>{$row['id_instrument']}</a>
+              </td>
+
+              <td>
+                <a href='admin.php?inst={$row['id_instrument']}'>{$row['model']}</a>
+              </td>
+
+              <td>
+                <a href='admin.php?inst={$row['id_instrument']}'>{$row['active']}</a>
+              </td>
+              </tr>";
+          }
+            ?>
+            </table>
+        </div>
+      </div>
+
+      <div class="row container hide" id="rig1">
+        <form class="col container forml" action="success.php" method="post">
+          <input type="hidden" name="action" value="editRig">
+
           <?php
           try {
-            echo "<form class=\"w3-container w3-half w3-left\" action=\"success.php\" method=\"post\">";
 
             if (isset($_GET["rig"])) {
               unset($_SESSION["inst"]);
               unset($_SESSION["user"]);
 
-              $_SESSION["rig"] = $_GET["rig"];
+              $_SESSION["rig"] = testInput($_GET["rig"]);
 
-              $sql = "SELECT rights.idRight, instruments.idInstrument, instruments.model, users.login, users.idUser FROM ((rights INNER JOIN users ON rights.idUser=users.idUser) INNER JOIN instruments ON rights.idInstrument=instruments.idInstrument) WHERE rights.idRight='{$_SESSION['rig']}' ORDER BY  rights.idRight;";
+              $sql = "SELECT rights.id_right, instruments.id_instrument, instruments.model, users.username, users.id_user FROM ((rights INNER JOIN users ON rights.id_user=users.id_user) INNER JOIN instruments ON rights.id_instrument=instruments.id_instrument) WHERE rights.id_right='{$_SESSION['rig']}' ORDER BY rights.id_right;";
               $result = $db->query($sql);
-
-              $content = "<input type=\"hidden\" name=\"action\" value=\"editRig\">
-									Instrument & User:<br>";
 
               if ($db->affected_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                  $content .= "<select name=\"rig\" readonly required><option value=\"{$row['idRight']}\">'{$row['model']}' '{$row['login']}'</option></select>
-											<input type=\"hidden\" name=\"cam\" value=\"{$row['idInstrument']}\">
-											<input type=\"hidden\" name=\"use\" value=\"{$row['idUser']}\">";
-                }
-                $content .= "<br><br>
-										Rights: <br>0 - no access, 1 - user, 2 - admin<br><br>
-										<input type=\"number\" name=\"pow\" min=\"0\" max=\"2\" autofocus value=\"1\" size=\"1\" autofocus required><br><br>
-										<button class=\"w3-button w3-black w3-round\">Submit</button></form>";
+                $row = $result->fetch_assoc();
+
+                $content = "<div class=\"form-group\">
+              <label>Instrument & User:
+              <select class=\"form-control\" name=\"rig\" readonly required>
+              <option value=\"{$row['id_right']}\">'{$row['model']}' '{$row['username']}'</option>
+              </select>
+              </label>
+              </div>
+
+              <input type=\"hidden\" name=\"inst\" value=\"{$row['id_instrument']}\">
+              <input type=\"hidden\" name=\"use\" value=\"{$row['id_user']}\">
+
+              <div class=\"form-group\">
+                <label>Rights: <br>0 - no access, 1 - user, 2 - admin
+                <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"pow\" min=\"0\" max=\"2\" value=\"1\" style=\"width:90px\" autofocus required>
+                </label>
+              </div>
+
+              <div class=\"form-group\">
+                <input type=\"Submit\" class=\"btn btn-outline-primary btn-block btn-sm\" value=\"Edit\" style=\"width:90px\" />
+              </div>";
               }
             } else {
-              $sql = "SELECT idInstrument, model FROM instruments WHERE active>0 ORDER BY idInstrument;";
+              $sql = "SELECT id_instrument, model FROM instruments WHERE active>0;";
               $result = $db->query($sql);
-              $content = "<input type=\"hidden\" name=\"action\" value=\"addRig\">
-									Instrument:<br>
-									<select name=\"cam\" required>";
+              $content = "
+              <div class=\"form-group\">
+              <label>Instrument:<br>
+                <select class=\"form-control\" name=\"inst\" required>";
 
               if ($db->affected_rows > 0)
                 while ($row = $result->fetch_assoc())
-                  $content .= "<option value=\"{$row['idInstrument']}\">{$row['model']}</option>";
+                  $content .= "<option value=\"{$row['id_instrument']}\">{$row['model']}</option>";
 
+              $content .= "
+                </select>
+              </label>
+              </div>
 
-              $sql = "SELECT idUser, login FROM users WHERE active>0 ORDER BY idUser;";
+            <div class=\"form-group\">
+              <label> User:<br>
+                <select class=\"form-control\" name=\"use\" required>
+                  ";
+              $sql = "SELECT id_user, username FROM users WHERE active>0;";
               $result = $db->query($sql);
-
-              $content .= "</select><br><br>
-									User:<br>
-									<select name=\"use\" required>";
-
               if ($db->affected_rows > 0)
                 while ($row = $result->fetch_assoc())
-                  $content .= "<option value=\"{$row['idUser']}\">{$row['login']}</option>";
+                  $content .= "<option value=\"{$row['id_user']}\">{$row['username']}</option>";
 
-              $content .= "</select><br><br>
-									Rights: <br>0 - no access, 1 - user, 2 - admin<br><br>
-									<input type=\"number\" name=\"pow\" min=\"0\" max=\"2\" value=\"1\" size=\"1\" required><br><br>
-									<button class=\"w3-button w3-black w3-round\">Submit</button></form>";
+              $content .= "
+              </select>
+            </label>
+            </div>
+
+            <div class=\"form-group\">
+              <label>Rights: <br>0 - no access, 1 - user, 2 - admin
+              <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"pow\" min=\"0\" max=\"2\" value=\"1\" style=\"width:90px\" required>
+              </label>
+            </div>
+
+            <div class=\"form-group mt-2\">
+              <input type=\"Submit\" class=\"btn btn-outline-success btn-block btn-sm\" value=\"Add\" style=\"width:90px\" />
+            </div>";
             }
 
             echo $content;
-
-            $sql = "SELECT rights.idRight, instruments.model, users.login, rights.power FROM ((rights INNER JOIN users ON rights.idUser=users.idUser) INNER JOIN instruments ON rights.idInstrument=instruments.idInstrument) ORDER BY  rights.idRight;";
-            $result = $db->query($sql);
-
-            if ($db->affected_rows > 0) {
-              // output data of each row
-              echo "<table class=\"w3-table-all w3-half w3-right\" style=\"max-width:350px;\">";
-              echo "<tr><th>Id</th><th>User</th><th>Model</th><th>Power</th></tr>";
-
-              while ($row = $result->fetch_assoc())
-                echo "<tr><td><a href=\"admin.php?rig={$row['idRight']}\">{$row['idRight']}</a></td><td><a href=\"admin.php?rig={$row['idRight']}\">{$row['login']}</a></td><td><a href=\"admin.php?rig={$row['idRight']}\">{$row['model']}</a></td><td><a href=\"admin.php?rig={$row['idRight']}\">{$row['power']}</a></td></tr>";
-
-              echo "</table>";
-            } else
-              throw new Exception("Error updating record: " . $db->error);
           } catch (Exception $e) {
-            $err3 = $e->getMessage();
+            $_SESSION["err2"] = $e->getMessage();
+          }
+
+          if (isset($_SESSION["err2"])) {
+            echo '
+            <div class="alert alert-danger mt-3" role="alert">
+              <em>'
+              . $_SESSION["err2"] .
+              '</em>
+            </div>';
+
+            unset($_SESSION["err2"]);
+          } else if (empty($_GET["rig"])) {
+            echo '
+            <div class="alert alert-secondary w-50 mt-3" role="alert">
+              <em>
+              Add or click to edit users\' rights.
+              </em>
+            </div>';
           }
           ?>
-          <div class="w3-panel"><br>
-            <i class="w3-text-red">
-              <?php if (isset($_SESSION["err3"])) {
-                $err3 = $_SESSION["err3"];
-                unset($_SESSION["err3"]);
-              } else if (empty($_GET["rig"])) $err3 = "Please select a right or fill the form.";
-              print $err3; ?>
-            </i>
-          </div>
-        </div>
 
-        <div class="w3-container hide" id="user1">
+        </form>
+
+        <div class="col-sm-5 mt-4 container table-responsive-sm">
+          <?php
+          $sql = "SELECT rights.id_right, instruments.model, users.username, rights.power FROM ((rights INNER JOIN users ON rights.id_user=users.id_user) INNER JOIN instruments ON rights.id_instrument=instruments.id_instrument) ORDER BY  rights.id_right;";
+          $result = $db->query($sql);
+
+          if ($db->affected_rows > 0) {
+          ?>
+            <table class="table table-condensed table-hover">
+              <tr>
+                <th>Id</th>
+                <th>User</th>
+                <th>Model</th>
+                <th>Power</th>
+              </tr>
+
+            <?php
+            while ($row = $result->fetch_assoc())
+              echo "
+              <tr>
+              <td>
+              <a href=\"admin.php?rig={$row['id_right']}\">{$row['id_right']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?rig={$row['id_right']}\">{$row['username']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?rig={$row['id_right']}\">{$row['model']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?rig={$row['id_right']}\">{$row['power']}</a>
+              </td>
+              </tr>";
+          }
+            ?>
+            </table>
+        </div>
+      </div>
+
+      <div class="row container hide" id="user1">
+        <form class="col container forml" action="success.php" method="post" autocomplete="off">
           <?php
           try {
-            echo "<form class=\"w3-half\" action=\"success.php\" method=\"post\">";
 
             if (isset($_GET["use"])) {
               unset($_SESSION["rig"]);
               unset($_SESSION["inst"]);
 
-              $_SESSION["user"] = $_GET["use"];
+              $_SESSION["user"] = testInput($_GET["use"]);
 
-              $sql = "SELECT * FROM users WHERE idUser='{$_SESSION['user']}' ORDER BY idUser;";
+              $sql = "SELECT * FROM users WHERE id_user='{$_SESSION['user']}' ORDER BY id_user;";
               $result = $db->query($sql);
 
-              if ($db->affected_rows > 0)
-                while ($row = $result->fetch_assoc()) {
-                  $content = "<input type=\"hidden\" name=\"action\" value=\"editUser\">First name:<br>
-											<input type=\"text\" maxlength=\"20\" size=\"18\" name=\"fname\" autofocus value=\"";
-                  if (isset($_SESSION["fname"])) {
-                    $content .= "{$_SESSION['fname']}";
-                    unset($_SESSION["fname"]);
-                  } else $content .= "{$row['firstname']}";
-                  $content .= "\" required><br><br>
-											Last name:<br>
-											<input type=\"text\" maxlength=\"20\" size=\"18\" name=\"lname\" value=\"";
-                  if (isset($_SESSION["lname"])) {
-                    $content .= "{$_SESSION['lname']}";
-                    unset($_SESSION["lname"]);
-                  } else $content .= "{$row['lastname']}";
-                  $content .= "\" required><br><br>
-											Login:<br>
-											<input type=\"text\" maxlength=\"20\" size=\"18\" name=\"login\" value=\"";
-                  if (isset($_SESSION["login"])) {
-                    $content .= "{$_SESSION['login']}";
-                    unset($_SESSION["login"]);
-                  } else $content .= "{$row['login']}";
-                  $content .= "\" required><br><br>
-											Password:<br>
-											<input type=\"password\" maxlength=\"20\" size=\"18\" name=\"password\" value=\"";
-                  if (isset($_SESSION["password"])) {
-                    $content .= "{$_SESSION['password']}";
-                    unset($_SESSION["password"]);
-                  } else $content .= "{$row['passwrd']}";
-                  $content .= "\" required> <br><br>
-											E-mail:<br>
-											<input type=\"email\" maxlength=\"30\" size=\"18\" name=\"email\" value=\"";
-                  if (isset($_SESSION["email"])) {
-                    $content .= "{$_SESSION['email']}";
-                    unset($_SESSION["email"]);
-                  } else $content .= "{$row['email']}";
-                  $content .= "\" required><br><br>
-											Would the user remain\become active? <br>1 - Yes, 0 - No. <br><br>
-											<input type=\"number\" min=\"0\" max=\"1\" name=\"active\" size=\"1\" value=\"";
-                  if (isset($_SESSION["active"])) {
-                    $content .= "{$_SESSION['active']}";
-                    unset($_SESSION["active"]);
-                  } else $content .= "{$row['active']}";
-                  $content .= "\" required><br><br>
-											Would the user remain\become an admininstrator? <br>1 - Yes, 0 - No. <br><br>
-											<input type=\"number\" min=\"0\" max=\"1\" name=\"admin\" size=\"1\" value=\"";
-                  if (isset($_SESSION["admin"])) {
-                    $content .= "{$_SESSION['admin']}";
-                    // unset($_SESSION["admin"]);
-                  } else $content .= "{$row['admin']}";
-                  $content .= "\" required><br><br>
-											<button class=\"w3-button w3-black w3-round-large\">Submit</button></form>";
-                }
+              if ($db->affected_rows > 0) {
+                $row = $result->fetch_assoc();
 
-              else
+                $content = "
+                <input type=\"hidden\" name=\"action\" value=\"editUser\">
+
+                <input type=\"hidden\" name=\"id_user\" value=\"{$row['id_user']}\">
+
+                <div class=\"form-group\">
+                  <label>First name:
+                  <input type=\"text\" class=\"form-control validate\" maxlength=\"25\" name=\"fname\" value=\"{$row['first_name']}\" placeholder=\"First Name\" required>
+                  </label>
+                </div>
+
+                <div class=\"form-group\">
+                  <label>Last name:
+                  <input type=\"text\" class=\"form-control validate\" maxlength=\"25\" name=\"lname\" value=\"{$row['last_name']}\" placeholder=\"Last Name\" required>
+                  </label>
+                </div>
+
+                <div class=\"form-group\">
+                  <label>Login:
+                  <input type=\"text\" class=\"form-control validate\" maxlength=\"25\" name=\"username\" value=\"{$row['username']}\" placeholder=\"username\" required>
+                  </label>
+                </div>
+
+                <div class=\"form-group\">
+                  <label>E-mail:
+                  <input type=\"email\" class=\"form-control\" name=\"email\" maxlength=\"30\" value=\"{$row['email']}\" placeholder=\"your@email.com\" required>
+                  </label>
+                </div>
+
+                <div class=\"form-group\">
+                  <label>Will the user be active? <br>1 - Yes, 0 - No.
+                  <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" min=\"0\" max=\"1\" value=\"{$row['active']}\"  style=\"width:90px\" required>
+                  </label>
+                </div>
+
+                <div class=\"form-group\">
+                  <label>Will the user be an admininstrator? <br>1 - Yes, 0 - No.
+                  <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"admin\" min=\"0\" max=\"1\" value=\"{$row['admin']}\"  style=\"width:90px\" autofocus required>
+                  </label>
+                </div>
+
+                <div class=\"form-group\">
+                  <input type=\"Submit\" class=\"btn btn-outline-primary btn-block btn-sm\" value=\"Edit\" style=\"width:90px\" />
+                </div>";
+              } else
                 throw new Exception("Error updating record: " . $db->error);
             } else {
-              $content = "<input type=\"hidden\" name=\"action\" value=\"addUser\">
-									First name:<br>
-									<input type=\"text\" maxlength=\"20\" size=\"18\" name=\"fname\" autocomplete=\"off\"";
-              if (isset($_SESSION["fname"])) {
-                $content .= " value=\"{$_SESSION['fname']}\"";
-                unset($_SESSION["fname"]);
-              }
-              $content .= " required><br><br>
-									Last name:<br>
-									<input type=\"text\" maxlength=\"20\" size=\"18\" name=\"lname\" autocomplete=\"off\"";
-              if (isset($_SESSION["lname"])) {
-                $content .= " value=\"{$_SESSION['lname']}\"";
-                unset($_SESSION["lname"]);
-              }
-              $content .= " required><br><br>
-									Login:<br>
-									<input type=\"text\" maxlength=\"20\" size=\"18\" name=\"login\" autocomplete=\"off\"";
-              if (isset($_SESSION["login"])) {
-                $content .= " value=\"{$_SESSION['login']}\"";
-                unset($_SESSION["login"]);
-              }
-              $content .= " required><br><br>
-									Password:<br>
-									<input type=\"password\" maxlength=\"20\" size=\"18\" name=\"password\" autocomplete=\"off\"";
-              if (isset($_SESSION["password"])) {
-                $content .= " value=\"{$_SESSION['password']}\"";
-                unset($_SESSION["password"]);
-              }
-              $content .= " required> <br><br>
-									E-mail:<br>
-									<input type=\"email\" maxlength=\"30\" size=\"18\" name=\"email\" autocomplete=\"off\"";
-              if (isset($_SESSION["email"])) {
-                $content .= " value=\"{$_SESSION['email']}\"";
-                unset($_SESSION["email"]);
-              }
-              $content .= " required><br><br>
-									Will the user be active? <br>1 - Yes, 0 - No. <br><br>
-									<input type=\"number\" min=\"0\" max=\"1\" name=\"active\" size=\"1\" value=\"";
-              if (isset($_SESSION["active"])) {
-                $content .= "{$_SESSION['active']}";
-                unset($_SESSION["active"]);
-              } else $content .= "1";
-              $content .= "\" required><br><br>
-									Will the user be an admininstrator? <br>1 - Yes, 0 - No. <br><br>
-									<input type=\"number\" min=\"0\" max=\"1\" name=\"admin\" size=\"1\" value=\"";
-              if (isset($_SESSION["admin"])) {
-                $content .= "{$_SESSION['admin']}";
-                // unset($_SESSION["admin"]);
-              } else $content .= "0";
-              $content .= "\" required><br><br>
-									<button class=\"w3-button w3-black w3-round-large\">Submit</button></form>";
+              $content = "
+              <input type=\"hidden\" name=\"action\" value=\"addUser\">
+
+              <div class=\"form-group\">
+                <label>First name:
+                <input type=\"text\" class=\"form-control validate\" maxlength=\"25\" name=\"fname\" placeholder=\"First Name\" required>
+                </label>
+              </div>
+
+              <div class=\"form-group\">
+                <label>Last name:
+                <input type=\"text\" class=\"form-control validate\" maxlength=\"25\" name=\"lname\" placeholder=\"Last Name\" required>
+                </label>
+              </div>
+
+              <div class=\"form-group\">
+                <label>Login:
+                <input type=\"text\" class=\"form-control validate\" maxlength=\"25\" name=\"username\" placeholder=\"username\" required>
+                </label>
+              </div>
+
+              <div class=\"form-group\">
+                <label>Password:
+                <input type=\"password\" class=\"form-control validate\" maxlength=\"25\" name=\"password\" autocomplete=\"new-password\" placeholder=\"password\" required>
+                </label>
+              </div>
+
+              <div class=\"form-group\">
+                <label>E-mail:
+                <input type=\"email\" class=\"form-control\" name=\"email\" maxlength=\"30\" placeholder=\"your@email.com\" required>
+                </label>
+              </div>
+
+              <div class=\"form-group\">
+                <label>Will the user be active? <br>1 - Yes, 0 - No.
+                <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" min=\"0\" max=\"1\" value=\"1\" style=\"width:90px\" required>
+                </label>
+              </div>
+
+              <div class=\"form-group\">
+                <label>Will the user be an admininstrator? <br>1 - Yes, 0 - No.
+                <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"admin\" min=\"0\" max=\"1\" value=\"0\" style=\"width:90px\" autofocus required>
+                </label>
+              </div>
+
+              <div class=\"form-group\">
+              <input type=\"Submit\" class=\"btn btn-outline-success btn-block btn-sm\" value=\"Add\" style=\"width:90px\" />
+            </div>";
             }
 
             echo $content;
-
-
-            $sql = "SELECT * FROM users ORDER BY idUser;";
-            $result = $db->query($sql);
-
-            if ($db->affected_rows > 0) {
-              // output data of each row
-              echo "<table class=\"w3-table-all w3-half\">";
-              echo "<tr><th>Id</th><th>First name</th><th>Last name</th><th>Login</th><th>Active</th><th>e-mail</th><th>Admin</th></tr>";
-
-              while ($row = $result->fetch_assoc())
-                echo "<tr><td><a href=\"admin.php?use={$row['idUser']}\">{$row['idUser']}</a></td><td><a href=\"admin.php?use={$row['idUser']}\">{$row['firstname']}</a></td><td><a href=\"admin.php?use={$row['idUser']}\">{$row['lastname']}</a></td><td><a href=\"admin.php?use={$row['idUser']}\">{$row['login']}</a></td><td><a href=\"admin.php?use={$row['idUser']}\">{$row['active']}</a></td><td><a href=\"admin.php?use={$row['idUser']}\">{$row['email']}</a></td><td><a href=\"admin.php?use={$row['idUser']}\">{$row['admin']}</a></td><td></tr>";
-
-              echo "</table>";
-            } else
-              throw new Exception("Error updating record: " . $db->error);
           } catch (Exception $e) {
-            $err2 = $e->getMessage();
+            $_SESSION["err3"] = $e->getMessage();
+          }
+
+          if (isset($_SESSION["err3"])) {
+            echo '
+            <div class="alert alert-danger mt-3" role="alert">
+              <em>'
+              . $_SESSION["err3"] .
+              '</em>
+            </div>';
+            unset($_SESSION["err3"]);
+          } else if (empty($_GET["use"])) {
+            echo '
+            <div class="alert alert-secondary w-50 mt-3" role="alert">
+              <em>
+              Add or click to edit user.
+              </em>
+            </div>
+          ';
           }
           ?>
-          <div class="w3-panel"><br>
-            <i class="w3-text-red">
-              <?php if (isset($_SESSION["err2"])) {
-                $err2 = $_SESSION["err2"];
-                unset($_SESSION["err2"]);
-              } else if (empty($_GET["use"])) $err2 = "Please select a user or fill the form.";
-              print $err2; ?>
-            </i>
-          </div>
+        </form>
+
+        <div class="col-md mt-4 container table-responsive-md">
+          <?php
+          $sql = "SELECT id_user, first_name, last_name, username, email, active, admin FROM users ORDER BY id_user;";
+          $result = $db->query($sql);
+
+          if ($db->affected_rows > 0) {
+          ?>
+            <table class="table table-condensed table-hover">
+              <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Login</th>
+                <th>e-mail</th>
+                <th>Admin</th>
+                <th>Active</th>
+              </tr>
+
+            <?php
+            while ($row = $result->fetch_assoc())
+              echo "
+              <tr>
+              <td>
+              <a href=\"admin.php?use={$row['id_user']}\">{$row['id_user']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?use={$row['id_user']}\">{$row['first_name']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?use={$row['id_user']}\">{$row['last_name']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?use={$row['id_user']}\">{$row['username']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?use={$row['id_user']}\">{$row['email']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?use={$row['id_user']}\">{$row['admin']}</a>
+              </td>
+
+              <td>
+              <a href=\"admin.php?use={$row['id_user']}\">{$row['active']}</a>
+              </td>
+              </tr>";
+          }
+            ?>
+            </table>
         </div>
-      </fieldset>
+      </div>
+
     </div>
   </main>
 
@@ -380,6 +501,28 @@ static $err1 = "", $err2 = "", $err3 = "", $content;
   require_once("footer.php");
   ?>
 
+  <script>
+    jQuery(() => {
+      <?php
+      if (isset($_GET["use"]) || isset($_GET["er"])) {
+      ?>
+        jQuery("#user").addClass("active");
+        jQuery("#user1").show();
+      <?php
+      } else if (isset($_GET["rig"])) {
+      ?>
+        jQuery("#rig").addClass("active");
+        jQuery("#rig1").show();
+      <?php
+      } else {
+      ?>
+        jQuery("#inst").addClass("active");
+        jQuery("#inst1").show();
+      <?php
+      }
+      ?>
+    });
+  </script>
 </body>
 
 </html>
