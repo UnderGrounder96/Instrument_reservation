@@ -19,7 +19,7 @@
           if (isset($_SESSION["admin"])) {
           ?>
             <li class="nav-item active">
-              <a class="topRight" href="admin.php">
+              <a class="nav-item nav-link text-primary" href="admin.php">
                 <i class="text-primary">Admin</i>
               </a>
             </li>
@@ -42,13 +42,13 @@
         ?>
 
         <li class="nav-item">
-          <a class="topRight" href="#">Policy</a>
+          <a class="nav-item nav-link text-body" href="#">Policy</a>
         </li>
         <li class="nav-item">
-          <a class="topRight" href="contact.php">Contact</a>
+          <a class="nav-item nav-link text-body" href="contact.php">Contact</a>
         </li>
         <li class="nav-item">
-          <a class="topRight" href="terms.php">Terms of use</a>
+          <a class="nav-item nav-link text-body" href="terms.php">Terms of use</a>
         </li>
       </ul>
     </div>

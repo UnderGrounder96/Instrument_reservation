@@ -47,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
       break;
 
+
     case "addRes":
       try {
         $dateIn = date("Y-m-d", strtotime($_POST["dateIn"]));
@@ -126,6 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
                 unset($_SESSION["date_in"]);
                 unset($_SESSION["date_out"]);
                 unset($_SESSION["description"]);
+
                 _output($_POST["action"]);
               } else
                 throw new Exception("Error inserting record: " . $db->error);
@@ -161,30 +163,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     case "addInst":
       try {
-        $_SESSION["model"] = testInput($_POST["model"]);
-        $_SESSION["active"] = testInput($_POST["active"][0]);
+        $_POST["model"] = testInput($_POST["model"]);
+        $_POST["active"] = testInput($_POST["active"][0]);
 
-        if (preg_match("/[^-A-Za-z0-9_ ]/", $_SESSION["model"]))
+        if (preg_match("/[^-A-Za-z0-9_ ]/", $_POST["model"]))
           throw new Exception("Only models containing letters, numbers, hyphens and spaces are allowed");
 
-        $sql = "SELECT model, active FROM instruments WHERE model='{$_SESSION['model']}';";
+        $sql = "SELECT model, active FROM instruments WHERE model='{$_POST['model']}';";
         $result = $db->query($sql);
 
         if ($db->affected_rows > 0) {
-          $sql = "UPDATE instruments SET model='{$_SESSION['model']}', active='{$_SESSION['active']}' WHERE model='{$_SESSION['model']}';";
+          $sql = "UPDATE instruments SET model='{$_POST['model']}', active='{$_POST['active']}' WHERE model='{$_POST['model']}';";
 
           if ($db->query($sql) === TRUE) {
-            unset($_SESSION["model"]);
-            unset($_SESSION["active"]);
             _output("editInst");
           } else
             throw new Exception("Error updating record: " . $db->error);
         } else {
-          $sql = "INSERT INTO instruments (model, active) VALUES ('{$_SESSION['model']}', '{$_SESSION['active']}');";
+          $sql = "INSERT INTO instruments (model, active) VALUES ('{$_POST['model']}', '{$_POST['active']}');";
 
           if ($db->query($sql) === TRUE) {
-            unset($_SESSION["model"]);
-            unset($_SESSION["active"]);
             _output($_POST["action"]);
           } else
             throw new Exception("Error inserting record: " . $db->error);
@@ -199,23 +197,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     case "editInst":
       try {
-        $_SESSION["model"] = testInput($_POST["model"]);
-        $_SESSION["active"] = testInput($_POST["active"][0]);
+        $_POST["model"] = testInput($_POST["model"]);
+        $_POST["active"] = testInput($_POST["active"][0]);
 
-        if (preg_match("/[^-A-Za-z0-9_ ]/", $_SESSION["model"]))
+        if (preg_match("/[^-A-Za-z0-9_ ]/", $_POST["model"]))
           throw new Exception("Only models containing letters, numbers, hyphens and spaces are allowed");
 
         $sql = "SELECT model, active FROM instruments WHERE id_instrument='{$_SESSION['inst']}';";
         $result = $db->query($sql);
 
         if ($db->affected_rows > 0) {
-          $sql = "UPDATE instruments SET model='{$_SESSION['model']}', active='{$_SESSION['active']}' WHERE id_instrument='{$_SESSION['inst']}';";
+          $sql = "UPDATE instruments SET model='{$_POST['model']}', active='{$_POST['active']}' WHERE id_instrument='{$_SESSION['inst']}';";
 
           if ($db->query($sql) === TRUE) {
             unset($_SESSION["inst"]);
-            unset($_SESSION["model"]);
-            unset($_SESSION["active"]);
-            _output("editInst");
+
+            _output($_POST["action"]);
           } else
             throw new Exception("Error updating record: " . $db->error);
         }
@@ -229,55 +226,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     case "addUser":
       try {
-        $_SESSION["fname"] = testInput($_POST["fname"]);
-        $_SESSION["lname"] = testInput($_POST["lname"]);
-        $_SESSION["username"] = testInput($_POST["username"]);
-        $_SESSION["email"] = testInput($_POST["email"]);
-        $_SESSION["admin"] = testInput($_POST["admin"][0]);
-        $_SESSION["active"] = testInput($_POST["active"][0]);
+        $_POST["fname"] = testInput($_POST["fname"]);
+        $_POST["lname"] = testInput($_POST["lname"]);
+        $_POST["username"] = testInput($_POST["username"]);
+        $_POST["email"] = testInput($_POST["email"]);
+        $_POST["admin"] = testInput($_POST["admin"][0]);
+        $_POST["active"] = testInput($_POST["active"][0]);
         $_POST["password"] = testInput($_POST["password"]);
 
         // check if name only contains letters and whitespace
-        if (preg_match("/[^A-Za-z ]/", $_SESSION["fname"]))
+        if (preg_match("/[^A-Za-z ]/", $_POST["fname"]))
           throw new Exception("Only names containing letters and white spaces are allowed");
 
-        if (preg_match("/[^A-Za-z ]/", $_SESSION["lname"]))
+        if (preg_match("/[^A-Za-z ]/", $_POST["lname"]))
           throw new Exception("Only names containing letters and white spaces are allowed");
 
-        if (preg_match("/[^A-Za-z0-9_]/", $_SESSION["username"]))
+        if (preg_match("/[^A-Za-z0-9_]/", $_POST["username"]))
           throw new Exception("Only logins containing letters, numbers and underscore are allowed");
 
         // check if e-mail address is well-formed
-        if (!filter_var($_SESSION["email"], FILTER_VALIDATE_EMAIL))
+        if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL))
           throw new Exception("Invalid email format");
 
-        $sql = "SELECT username FROM users WHERE username='{$_SESSION['username']}';";
+        $sql = "SELECT username FROM users WHERE username='{$_POST['username']}';";
         $result = $db->query($sql);
 
         if ($db->affected_rows > 0)
           throw new Exception("This username already exist in the database.");
 
         else {
-          $pass = password_hash($_POST["password"], PASSWORD_BCRYPT);
-          $sql = "INSERT INTO users (firstname, lastname, username, pass, active, email, admin) VALUES ('{$_SESSION['fname']}', '{$_SESSION['lname']}', '{$_SESSION['username']}', '{$pass}', '{$_SESSION['active']}', '{$_SESSION['email']}', '{$_SESSION['admin']}');";
+          $_POST["password"] = password_hash($_POST["password"], PASSWORD_BCRYPT);
+          $sql = "INSERT INTO users (first_name, last_name, username, pass, email, admin, active) VALUES ('{$_POST['fname']}', '{$_POST['lname']}', '{$_POST['username']}', '{$_POST['password']}', '{$_POST['email']}', '{$_POST['admin']}', '{$_POST['active']}');";
 
-          unset($pass);
+          unset($_POST["password"]);
 
           if ($db->query($sql) === TRUE) {
-            unset($_SESSION["fname"]);
-            unset($_SESSION["lname"]);
-            unset($_SESSION["username"]);
-            unset($_SESSION["email"]);
-            unset($_SESSION["admin"]);
-            unset($_SESSION["active"]);
-
             _output($_POST["action"]);
           } else
             throw new Exception("Error inserting record: " . $db->error);
         }
       } catch (Exception $e) {
-        $_SESSION["err2"] = $e->getMessage();
-        header("location: admin.php?er=1");
+        $_SESSION["err3"] = $e->getMessage();
+        header("location: admin.php");
       }
 
       break;
@@ -285,79 +275,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     case "editUser":
       try {
-        $_SESSION["fname"] = testInput($_POST["fname"]);
-        $_SESSION["lname"] = testInput($_POST["lname"]);
-        $_SESSION["username"] = testInput($_POST["username"]);
-        $_SESSION["email"] = testInput($_POST["email"]);
-        $_SESSION["admin"] = testInput($_POST["admin"][0]);
-        $_SESSION["active"] = testInput($_POST["active"][0]);
-        $_POST["password"] = testInput($_POST["password"]);
+        $_POST["fname"] = testInput($_POST["fname"]);
+        $_POST["lname"] = testInput($_POST["lname"]);
+        $_POST["username"] = testInput($_POST["username"]);
+        $_POST["email"] = testInput($_POST["email"]);
+        $_POST["admin"] = testInput($_POST["admin"][0]);
+        $_POST["active"] = testInput($_POST["active"][0]);
 
         // check if name only contains letters and whitespace
-        if (preg_match("/[^A-Za-z ]/", $_SESSION["fname"]))
+        if (preg_match("/[^A-Za-z ]/", $_POST["fname"]))
           throw new Exception("Only names containing letters and white spaces are allowed");
 
-        if (preg_match("/[^A-Za-z ]/", $_SESSION["lname"]))
+        if (preg_match("/[^A-Za-z ]/", $_POST["lname"]))
           throw new Exception("Only names containing letters and white spaces are allowed");
 
-        if (preg_match("/[^A-Za-z0-9_]/", $_SESSION["username"]))
+        if (preg_match("/[^A-Za-z0-9_]/", $_POST["username"]))
           throw new Exception("Only logins containing letters, numbers and underscore are allowed");
 
         // check if e-mail address is well-formed
-        if (!filter_var($_SESSION["email"], FILTER_VALIDATE_EMAIL))
+        if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL))
           throw new Exception("Invalid email format");
 
-        $sql = "SELECT username FROM users WHERE username='{$_SESSION['username']}' AND id_user!='{$_SESSION['id_user']}';";
+        $sql = "SELECT username FROM users WHERE username='{$_POST['username']}' AND id_user!='{$_POST['id_user']}';";
         $result = $db->query($sql);
 
         if ($db->affected_rows > 0)
           throw new Exception("This username already exist in the database.");
 
         else {
-          $pass = password_hash($_POST["password"], PASSWORD_BCRYPT);
-
-          $sql = "UPDATE users SET firstname='{$_SESSION['fname']}', lastname='{$_SESSION['lname']}', username='{$_SESSION['username']}', pass='{$pass}', active='{$_SESSION['active']}', email='{$_SESSION['email']}', admin='{$_SESSION['admin']}' WHERE id_user='{$_SESSION['id_user']}';";
-
-          unset($pass);
+          $sql = "UPDATE users SET first_name='{$_POST['fname']}', last_name='{$_POST['lname']}', username='{$_POST['username']}', email='{$_POST['email']}', admin='{$_POST['admin']}', active='{$_POST['active']}' WHERE id_user='{$_POST['id_user']}';";
 
           if ($db->query($sql) === TRUE) {
-            unset($_SESSION["fname"]);
-            unset($_SESSION["lname"]);
-            unset($_SESSION["username"]);
-            unset($_SESSION["email"]);
-            unset($_SESSION["admin"]);
-            unset($_SESSION["active"]);
-
             _output($_POST["action"]);
           } else
             throw new Exception("Error updating record: " . $db->error);
         }
       } catch (Exception $e) {
-        $_SESSION["err2"] = $e->getMessage();
-        header("location: admin.php?use={$_SESSION['id_user']}");
+        $_SESSION["err3"] = $e->getMessage();
+        header("location: admin.php?use={$_POST['id_user']}");
       }
 
       break;
 
 
-    case "addRig":
+    case "editRig":
       try {
-        $idUse = testInput($_POST["use"]);
-        $idIns = testInput($_POST["cam"]);
-        $power = testInput($_POST["pow"]);
+        $_POST["use"] = testInput($_POST["use"]);
+        $_POST["inst"] = testInput($_POST["inst"]);
+        $_POST["pow"] = testInput($_POST["pow"][0]);
 
-        $sql = "SELECT * FROM rights WHERE id_user='{$idUse}' AND id_instrument='{$idIns}';";
+        $sql = "SELECT * FROM rights WHERE id_user='{$_POST['use']}' AND id_instrument='{$_POST['inst']}';";
         $result = $db->query($sql);
 
         if ($db->affected_rows > 0) {
-          $sql = "UPDATE rights SET id_user='{$idUse}', id_instrument='{$idIns}',  power='{$power}' WHERE id_instrument='{$idIns}' AND id_user='{$idUse}';";
+          $sql = "UPDATE rights SET id_user='{$_POST['use']}', id_instrument='{$_POST['inst']}',  power='{$_POST['pow']}' WHERE id_instrument='{$_POST['inst']}' AND id_user='{$_POST['use']}';";
 
           if ($db->query($sql) === TRUE) {
-            _output("editRig");
+            unset($_SESSION["rig"]);
+            _output($_POST["action"]);
           } else
             throw new Exception("Error updating record: " . $db->error);
         } else {
-          $sql = "INSERT INTO rights (id_user, id_instrument, power) VALUES ('{$idUse}', '{$idIns}', '{$power}');";
+          $sql = "INSERT INTO rights (id_user, id_instrument, power) VALUES ('{$_POST['use']}', '{$_POST['inst']}', '{$_POST['pow']}');";
 
           if ($db->query($sql) === TRUE)
             _output("addRig");
@@ -366,48 +345,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             throw new Exception("Error inserting record: " . $db->error);
         }
       } catch (Exception $e) {
-        $_SESSION["err4"] = $e->getMessage();
-        header("location: admin.php");
-      }
-
-      break;
-
-
-    case "editRig":
-      try {
-        $idUse = testInput($_POST["use"]);
-        $idIns = testInput($_POST["cam"]);
-        $power = testInput($_POST["pow"]);
-
-        $sql = "SELECT * FROM rights WHERE id_user='{$idUse}' AND id_instrument='{$idIns}';";
-        $result = $db->query($sql);
-
-        if ($db->affected_rows > 0) {
-          $sql = "UPDATE rights SET id_user='{$idUse}', id_instrument='{$idIns}',  power='{$power}' WHERE idRight='{$_SESSION['rig']}';";
-
-          if ($db->query($sql) === TRUE) {
-            unset($_SESSION["rig"]);
-            _output($_POST["action"]);
-          } else
-            throw new Exception("Error updating record: " . $db->error);
-        }
-      } catch (Exception $e) {
-        $_SESSION["err4"] = $e->getMessage();
+        $_SESSION["err2"] = $e->getMessage();
         header("location: admin.php?rig={$_SESSION['rig']}");
       }
 
       break;
   }
-
-
 ?>
+
 <!DOCTYPE HTML>
 <html>
 
 <head>
   <script>
     function loaded() {
-      window.setTimeout(goTo, 1800);
+      window.setTimeout(goTo, 2000);
     }
 
     function goTo() {
@@ -427,7 +379,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         case "addRes":
         case "editRes":
         case "remRes":
-
           echo "window.location.replace(\"profile.php?inst={$_SESSION['id_inst']}\");";
           break;
       }
@@ -435,5 +386,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }
   </script>
 </head>
+
+<?php
+header("refresh:3; url=logout.php");
+?>
 
 </html>
