@@ -65,4 +65,22 @@ function _print($par1, $par2, $par3)
     echo "<body onLoad=\"loaded()\" style=\"font-family:Arial, Helvetica, sans-serif; font-size:14px;\"><h3><b>The " . $par1 . " data was " . $par2 . " successfully click <a href=\"admin.php\">here</a> to go back...</b></h3></body>";
 }
 
+function _check($var)
+{
+  if (!$var)
+    return "no";
+
+  return "yes";
+}
+
+function _power($var)
+{
+  if ($var === "2")
+    return "admin";
+  else if ($var === "1")
+    return "user";
+
+  return "no access";
+}
+
 ?>

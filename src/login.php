@@ -16,7 +16,7 @@ require_once("head.php");
 
   <main class="container" role="main">
     <div class="jumbotron row">
-      <div class="col">
+      <div class="col-md">
         <h1 id="title">
           Company&trade;
         </h1>
@@ -29,7 +29,7 @@ require_once("head.php");
       <?php
       if (!isset($_SESSION["login_user"])) {
       ?>
-        <div class="px-3">
+        <div class="col-md-3">
           <form role="form login-form" action="success.php" method="post">
             <input type="hidden" name="action" value="login">
 

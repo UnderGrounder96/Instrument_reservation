@@ -13,8 +13,7 @@ $db = new mysqli(
   getenv('DB_HOST'),
   getenv('DB_USER'),
   getenv('DB_PASSWORD'),
-  getenv('DB_NAME'),
-  getenv('DB_PORT')
+  getenv('DB_NAME')
 )
   or die("Failed to connect to MySQL server: " . $db->connect_error);
 

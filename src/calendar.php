@@ -116,18 +116,16 @@ class Calendar
     }
 
     if (isset($_SESSION["id_inst"])) {
-      $sql = "SELECT power FROM rights WHERE id_user='{$_SESSION['id_user']}' AND id_instrument='{$_SESSION['id_inst']}';";
-      $result = $db->query($sql);
+      $result = $db->query("SELECT power FROM rights WHERE id_user='{$_SESSION['id_user']}' AND id_instrument='{$_SESSION['id_inst']}';");
       $row = $result->fetch_assoc();
 
       if ($row["power"] > 0) {
 
         $content = "";
 
-        $sql = "SELECT DISTINCT reservations.date_in, reservations.date_out, reservations.id_user FROM reservations
-					JOIN instruments ON reservations.id_instrument=instruments.id_instrument WHERE DATE(reservations.date_in)<='{$this->currentDate}'
-					AND DATE(reservations.date_out)>='{$this->currentDate}' AND reservations.id_instrument='{$_SESSION['id_inst']}' AND instruments.active>0;";
-        $result = $db->query($sql);
+        $result = $db->query("SELECT DISTINCT reservations.date_in, reservations.date_out, reservations.id_user FROM reservations
+        JOIN instruments ON reservations.id_instrument=instruments.id_instrument WHERE DATE(reservations.date_in)<='{$this->currentDate}'
+        AND DATE(reservations.date_out)>='{$this->currentDate}' AND reservations.id_instrument='{$_SESSION['id_inst']}' AND instruments.active>0;");
 
         if ($db->affected_rows > 0) {
 

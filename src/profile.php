@@ -3,6 +3,7 @@
 
 <?php
 require_once("session.php");
+require_once("functions.php");
 
 $title_page = "Profile";
 
@@ -23,97 +24,125 @@ static $err1 = "";
   <main class="container" role="main">
 
     <div class="container">
-      <div class="table-responsive">
-        <?php
-        $result =
-          $db->query(
-            "SELECT rights.id_instrument, instruments.model
+      <div class="container row">
+        <div class="col-sm-3 mt-4 container table-responsive-sm mr-auto text-center">
+          <?php
+          $result =
+            $db->query(
+              "SELECT rights.id_instrument, instruments.model
             FROM rights JOIN instruments
             ON rights.id_instrument=instruments.id_instrument
             WHERE rights.id_user='{$_SESSION['id_user']}'
             AND rights.power>0 AND instruments.active>0
             ORDER BY rights.id_instrument;"
-          );
+            );
 
-        if ($db->affected_rows > 0) {
-        ?>
-          <table class="table-sm table shadow table-hover justify-left w-25">
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Model</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php
-              while ($row = $result->fetch_assoc())
-                echo "<tr><td><a href=\"profile.php?inst={$row['id_instrument']}\">{$row['id_instrument']}</a></td><td><a href=\"profile.php?inst={$row['id_instrument']}\">{$row['model']}</a></td></tr>";
-              ?>
-            </tbody>
+          if ($db->affected_rows > 0) {
+          ?>
+            <table class="table-sm table shadow table-hover">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                </tr>
+              </thead>
 
-          </table>
+              <tbody>
+                <?php
+                while ($row = $result->fetch_assoc())
+                  echo "<tr><td><a href=\"profile.php?inst={$row['id_instrument']}\">{$row['model']}</a></td></tr>";
+                ?>
+              </tbody>
+            </table>
+
+          <?php
+          }
+          ?>
+        </div>
+
+
         <?php
-        }
-
         $result = $db->query("
-          SELECT id_reservation, date_in, date_out, id_instrument
-          FROM Reservations
-          WHERE id_user='{$_SESSION['id_user']}'
-          AND DATE(date_out)>=CURDATE()
-          ORDER BY id_reservation;
+          SELECT Reservations.id_reservation, Reservations.date_in, Reservations.date_out, Instruments.model
+          FROM Reservations JOIN Instruments ON Reservations.id_instrument=Instruments.id_instrument
+          WHERE Reservations.id_user='{$_SESSION['id_user']}'
+          AND DATE(Reservations.date_out)>=CURDATE();
         ");
 
         if ($db->affected_rows > 0) {
-          // output data of each row
-          echo "
-          <table class=\"table-sm table table-hover justify-left\" style=\"max-width:530px\">
-          <tr>
-            <th>Id</th>
-            <th>Date in</th>
-            <th>Date out</th>
-            <th>Id instrument</th>
-          </tr>
-          ";
-
-          while ($row = $result->fetch_assoc())
-            echo "<tr>
-            <td>{$row['id_reservation']}</td>
-            <td>{$row['date_in']}</td>
-            <td>{$row['date_out']}</td>
-            <td>{$row['id_instrument']}</td>
-          </tr>";
-
-          echo "</table>";
-        }
         ?>
+          <div class="col mt-4 container table-responsive text-center">
+            <table class="table-sm table shadow table-hover">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Date in</th>
+                  <th>Date out</th>
+                </tr>
+              </thead>
+
+              <tbody>
+              <?php
+              while ($row = $result->fetch_assoc())
+                echo "
+            <tr>
+              <td><a href=\"profile.php?res={$row['id_reservation']}\">{$row['model']}</a></td>
+              <td><a href=\"profile.php?res={$row['id_reservation']}\">{$row['date_in']}</a></td>
+              <td><a href=\"profile.php?res={$row['id_reservation']}\">{$row['date_out']}</a></td>
+            </tr>";
+            }
+              ?>
+              </tbody>
+            </table>
+          </div>
       </div>
 
-      <div class="container" style="position:relative;margin:auto;display:block;float-left;"><br>
+
+      <div class="d-block m-auto container"><br>
         <?php
         if (isset($_GET["inst"]))
-          $_SESSION["idInst"] = $_GET["inst"];
+          $_SESSION["id_inst"] = testInput($_GET["inst"]);
 
-        require "calendar.php";
+        require_once("calendar.php");
         $calendar = new Calendar();
-        echo $calendar->show() . "<br>";
+
+        echo $calendar->show() . "<br />";
 
         if (isset($_GET["inst"])) {
-          $result = $db->query("SELECT id_instrument FROM rights WHERE id_user='{$_SESSION['id_user']}' AND id_instrument='{$_SESSION['idInst']}' AND power>1");
+          $result = $db->query("SELECT id_instrument FROM rights WHERE id_user='{$_SESSION['id_user']}' AND id_instrument='{$_SESSION['id_inst']}' AND power>1");
           if ($db->affected_rows > 0)
             echo "<p><nav class=\"w3-center h\"><b><span id=\"res\">Add/Rem res.</span> | <span id=\"res2\">Change res.</span></nav></b></p>";
         }
 
         if (isset($_GET["res"])) {
-          $result = $db->query("SELECT reservations.id_instrument FROM reservations JOIN rights ON reservations.id_instrument=rights.id_instrument WHERE reservations.id_reservation='{$_GET['res']}' AND rights.id_user='{$_SESSION['id_user']}'AND rights.power>1;");
+          $_SESSION["res"] = testInput($_GET["res"]);
+
+          $result = $db->query("SELECT reservations.id_instrument FROM reservations JOIN rights ON reservations.id_instrument=rights.id_instrument WHERE reservations.id_reservation='{$_SESSION['res']}' AND rights.id_user='{$_SESSION['id_user']}'AND rights.power>1;");
           if ($db->affected_rows > 0)
             echo "<p><nav class=\"w3-center h\"><b><span id=\"res\">Add/Rem res.</span> | <span id=\"res2\">Change res.</span></nav></b></p>";
         }
+
+        if (isset($_SESSION["error"])) {
+          echo '
+          <div class="alert alert-danger mt-3 w-50" role="alert">
+            <em>'
+            . $_SESSION["error"] .
+            '</em>
+          </div>';
+
+          unset($_SESSION["error"]);
+        } else if (empty($_GET["inst"]) && !isset($_GET["res"])) {
+          echo '
+          <div class="alert alert-secondary w-25 mt-3" role="alert">
+            <em>
+            Please select an instrument.
+            </em>
+          </div>';
+        }
         ?>
       </div>
-    </div>
 
-    <div class="container">
       <div id="res1" class="hide">
+
         <fieldset>
           <legend>Please fill the form:</legend>
           <form class="w3-container w3-half" action="success.php" method="post">
@@ -121,7 +150,7 @@ static $err1 = "";
             Instrument:<br>
             <?php
             if (isset($_GET["inst"])) {
-              $result = $db->query("SELECT rights.id_instrument, instruments.model FROM rights JOIN instruments ON rights.id_instrument=instruments.id_instrument WHERE rights.id_user='{$_SESSION['id_user']}'AND rights.id_instrument='{$_GET['inst']}' AND rights.power>0 AND instruments.active>0;");
+              $result = $db->query("SELECT rights.id_instrument, instruments.model FROM rights JOIN instruments ON rights.id_instrument=instruments.id_instrument WHERE rights.id_user='{$_SESSION['id_user']}'AND rights.id_instrument='{$_SESSION['inst']}' AND rights.power>0 AND instruments.active>0;");
 
               if ($db->affected_rows > 0) {
                 $select = "<select name=\"id_instrument\" required>";
@@ -138,22 +167,9 @@ static $err1 = "";
 
             Date in: <br><input type="datetime-local" name="dateIn" required><br><br>
             Date out: <br><input type="datetime-local" name="dateOut" required><br><br>
-            Description: <br><textarea name="description" maxlength="50" rows="3" cols="25" required></textarea>
-            <br><span id="chars">50</span> characters remaining...<br><br>
+            Description: <br><textarea name="description" maxlength="90" rows="3" cols="25" required></textarea>
+            <br><span id="chars">90</span> characters remaining...<br><br>
             <button class="w3-button w3-black w3-round">Submit</button>
-
-            <div class="w3-panel">
-              <i class="w3-text-red">
-                <?php
-                if (isset($_SESSION["error"]))
-                  print $_SESSION["error"];
-                else if (empty($_GET["inst"])) {
-                  $_SESSION["error"] = "Please select an instrument.";
-                  print $_SESSION["error"];
-                }
-                unset($_SESSION["error"]); ?>
-              </i>
-            </div>
           </form>
 
 
@@ -203,15 +219,16 @@ static $err1 = "";
               }
             }
             ?>
-          </form>
 
-          <div class="w3-panel">
-            <i class="w3-text-red">
-              <?php if (isset($_SESSION["error"])) print $_SESSION["error"];
-              unset($_SESSION["error"]); ?>
-            </i>
-          </div>
+
+            <div class="w3-panel">
+              <i class="w3-text-red">
+                <?php if (isset($_SESSION["error"])) print $_SESSION["error"];
+                unset($_SESSION["error"]); ?>
+              </i>
+            </div>
         </fieldset>
+        </form>
       </div>
 
       <div id="res3" class="hide h">
@@ -283,6 +300,25 @@ static $err1 = "";
           } catch (Exception $e) {
             $err1 = $e->getMessage();
           }
+
+          if (isset($_SESSION["err3"])) {
+            echo '
+            <div class="alert alert-danger mt-3" role="alert">
+              <em>'
+              . $_SESSION["err3"] .
+              '</em>
+            </div>';
+            unset($_SESSION["err3"]);
+          } else if (empty($_GET["use"])) {
+            echo '
+            <div class="alert alert-secondary w-50 mt-3" role="alert">
+              <em>
+              Add or click to edit user.
+              </em>
+            </div>
+          ';
+          }
+          ?>
           ?>
           <div class="w3-panel"><br>
             <i class="w3-text-red">
@@ -301,7 +337,7 @@ static $err1 = "";
   <?php
   require_once("footer.php");
 
-  if (isset($_GET["use"]) || isset($_GET["er"]))
+  if (isset($_GET["use"]))
     echo '<script>jQuery("#user1").show();</script>';
 
   else if (isset($_GET["rig"]))
@@ -312,9 +348,11 @@ static $err1 = "";
   ?>
 
   <script type="text/javascript">
-    jQuery(function() {
-      var maxLength = 50;
+    jQuery(() => {
+      let maxLength = 90;
+
       jQuery(".hide").hide();
+
       <?php
       $result = $db->query("SELECT power FROM rights WHERE id_user='{$_SESSION['id_user']}';");
       $row = $result->fetch_assoc();
@@ -334,9 +372,11 @@ static $err1 = "";
             echo "jQuery(\".hide\").hide();\n
                 jQuery(\"#res3\").show();\n
 
-                jQuery(\"#desc1\").keyup(function() {
-                  var length = jQuery(this).val().length;
-                  var length = maxLength-length;
+                jQuery(\"#desc1\").keyup(() => {
+                  let length = jQuery(this).val().length;
+
+                  length = maxLength-length;
+
                   jQuery(\"#chars1\").text(length);
                 });";
 
@@ -346,23 +386,26 @@ static $err1 = "";
         }
 
       ?>
-      jQuery("#res").click(function() {
+
+      jQuery("#res").click(() => {
         jQuery(".hide").hide();
         jQuery("#res1").show();
       });
 
-      jQuery("#res2").click(function() {
+      jQuery("#res2").click(() => {
         jQuery(".hide").hide();
         jQuery("#res3").show();
       });
 
-      jQuery(".dates").click(function() {
+      jQuery(".dates").click(() => {
         jQuery("#res1").toggle();
       });
 
-      jQuery("textarea").keyup(function() {
-        var length = jQuery(this).val().length;
-        var length = maxLength - length;
+      jQuery("textarea").keyup(() => {
+        let length = jQuery("textarea").val().length;
+
+        length = maxLength - length;
+
         jQuery("#chars").text(length);
       });
     });

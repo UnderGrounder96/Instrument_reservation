@@ -50,29 +50,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     case "addRes":
       try {
-        $dateIn = date("Y-m-d", strtotime($_POST["dateIn"]));
-        $dateOut = date("Y-m-d", strtotime($_POST["dateOut"]));
+        $curDate = date("Y-m-d");
+        $nextWeek = date("Y-m-d", strtotime("+1 week"));
+        $date_in = date("Y-m-d", strtotime($_POST["dateIn"]));
+        $date_out = date("Y-m-d", strtotime($_POST["dateOut"]));
 
-        if ($dateOut >= $dateIn) {
-          if ($dateIn >= date("Y-m-d") && $dateOut >= date("Y-m-d")) {
-            $sql = "SELECT date_in, date_out FROM reservations WHERE id_instrument='{$_SESSION['id_inst']}' AND DATE(date_out)>=CURDATE();";
-            $result = $db->query($sql);
+        if ($date_out >= $date_in && $nextWeek>$date_out) {
+          if ($date_in >= $curDate && $date_out >= $curDate) {
+            $result = $db->query("SELECT date_in, date_out FROM reservations WHERE id_instrument='{$_SESSION['id_inst']}' AND DATE(date_out)>=CURDATE();");
 
             if ($db->affected_rows > 0)
               while ($row = $result->fetch_assoc()) {
-                if (date("Y-m-d", strtotime($row["date_in"])) <= $dateIn && date("Y-m-d", strtotime($row["date_out"])) >= $dateIn)
+                if (date("Y-m-d", strtotime($row["date_in"])) <= $date_in && date("Y-m-d", strtotime($row["date_out"])) >= $date_in)
                   throw new Exception("Dates already taken, please select another dates.");
 
-                if (date("Y-m-d", strtotime($row["date_in"])) <= $dateOut && date("Y-m-d", strtotime($row["date_out"])) >= $dateOut)
+                if (date("Y-m-d", strtotime($row["date_in"])) <= $date_out && date("Y-m-d", strtotime($row["date_out"])) >= $date_out)
                   throw new Exception("Dates already taken, please select other dates.");
               }
 
-            $date_in = date("Y-m-d H:i", strtotime($_POST["dateIn"]));
-            $date_out = date("Y-m-d H:i", strtotime($_POST["dateOut"]));
+            $_POST['id_instrument'] = testInput($_POST['id_instrument']);
             $description = testInput($_POST["description"]);
 
 
-            $sql = "INSERT INTO reservations (date_in, date_out, description, id_instrument, id_user) VALUES ('{$date_in}', '{$date_out}', '{$description}', '{$_POST['id_instrument']}', '{$_SESSION['id_user']}');";
+            $sql = "INSERT INTO reservations (date_in, date_out, description, id_instrument, id_user) VALUES ('{$date_in}', '{$date_out}', '{$description}', '{}', '{$_SESSION['id_user']}');";
 
             if ($db->query($sql) === TRUE) {
               //unset($_SESSION["id_inst"]);
@@ -80,12 +80,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             } else
               throw new Exception("Error inserting the record: " . $db->error);
           } else
-            throw new Exception("Please verify the dates and time.");
+            throw new Exception("Please select appropriate dates. Within a week!");
         } else
-          throw new Exception("Please select appropriate dates.");
+          throw new Exception("Please select dates between today and within a week!");
       } catch (Exception $e) {
         $_SESSION["error"] = $e->getMessage();
-        header("location: user.php?inst={$_SESSION['id_inst']}");
+        header("location: profile.php?inst={$_SESSION['id_inst']}");
       }
 
       break;
@@ -138,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
           throw new Exception("Please veify the dates.");
       } catch (Exception $e) {
         $_SESSION["err1"] = $e->getMessage();
-        header("location: user.php?res={$_SESSION['res']}");
+        header("location: profile.php?res={$_SESSION['res']}");
       }
 
       break;
@@ -155,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
           throw new Exception("Error inserting the record: " . $db->error);
       } catch (Exception $e) {
         $_SESSION["error"] = $e->getMessage();
-        header("location: user.php?inst={$_SESSION['id_inst']}");
+        header("location: profile.php?inst={$_SESSION['id_inst']}");
       }
 
       break;
@@ -164,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     case "addInst":
       try {
         $_POST["model"] = testInput($_POST["model"]);
-        $_POST["active"] = testInput($_POST["active"][0]);
+        $_POST["active"] = testInput($_POST["active"]);
 
         if (preg_match("/[^-A-Za-z0-9_ ]/", $_POST["model"]))
           throw new Exception("Only models containing letters, numbers, hyphens and spaces are allowed");
@@ -189,36 +189,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         }
       } catch (Exception $e) {
         $_SESSION["err1"] = $e->getMessage();
-        header("location: admin.php");
-      }
-
-      break;
-
-
-    case "editInst":
-      try {
-        $_POST["model"] = testInput($_POST["model"]);
-        $_POST["active"] = testInput($_POST["active"][0]);
-
-        if (preg_match("/[^-A-Za-z0-9_ ]/", $_POST["model"]))
-          throw new Exception("Only models containing letters, numbers, hyphens and spaces are allowed");
-
-        $sql = "SELECT model, active FROM instruments WHERE id_instrument='{$_SESSION['inst']}';";
-        $result = $db->query($sql);
-
-        if ($db->affected_rows > 0) {
-          $sql = "UPDATE instruments SET model='{$_POST['model']}', active='{$_POST['active']}' WHERE id_instrument='{$_SESSION['inst']}';";
-
-          if ($db->query($sql) === TRUE) {
-            unset($_SESSION["inst"]);
-
-            _output($_POST["action"]);
-          } else
-            throw new Exception("Error updating record: " . $db->error);
-        }
-      } catch (Exception $e) {
-        $_SESSION["err1"] = $e->getMessage();
-        header("location: admin.php?inst={$_SESSION['inst']}");
+        header("location: admin.php?inst");
       }
 
       break;
@@ -230,8 +201,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         $_POST["lname"] = testInput($_POST["lname"]);
         $_POST["username"] = testInput($_POST["username"]);
         $_POST["email"] = testInput($_POST["email"]);
-        $_POST["admin"] = testInput($_POST["admin"][0]);
-        $_POST["active"] = testInput($_POST["active"][0]);
+        $_POST["admin"] = testInput($_POST["admin"]);
+        $_POST["active"] = testInput($_POST["active"]);
         $_POST["password"] = testInput($_POST["password"]);
 
         // check if name only contains letters and whitespace
@@ -279,8 +250,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         $_POST["lname"] = testInput($_POST["lname"]);
         $_POST["username"] = testInput($_POST["username"]);
         $_POST["email"] = testInput($_POST["email"]);
-        $_POST["admin"] = testInput($_POST["admin"][0]);
-        $_POST["active"] = testInput($_POST["active"][0]);
+        $_POST["admin"] = testInput($_POST["admin"]);
+        $_POST["active"] = testInput($_POST["active"]);
+        $_POST["id_user"] = testInput($_POST["id_user"]);
 
         // check if name only contains letters and whitespace
         if (preg_match("/[^A-Za-z ]/", $_POST["fname"]))
@@ -318,28 +290,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
       break;
 
 
-    case "editRig":
+    case "addRig":
       try {
-        $_POST["use"] = testInput($_POST["use"]);
+        $_POST["user"] = testInput($_POST["user"]);
         $_POST["inst"] = testInput($_POST["inst"]);
-        $_POST["pow"] = testInput($_POST["pow"][0]);
+        $_POST["pow"] = testInput($_POST["pow"]);
 
-        $sql = "SELECT * FROM rights WHERE id_user='{$_POST['use']}' AND id_instrument='{$_POST['inst']}';";
+        $sql = "SELECT * FROM rights WHERE id_user='{$_POST['user']}' AND id_instrument='{$_POST['inst']}';";
         $result = $db->query($sql);
 
         if ($db->affected_rows > 0) {
-          $sql = "UPDATE rights SET id_user='{$_POST['use']}', id_instrument='{$_POST['inst']}',  power='{$_POST['pow']}' WHERE id_instrument='{$_POST['inst']}' AND id_user='{$_POST['use']}';";
+          $sql = "UPDATE rights SET id_user='{$_POST['user']}', id_instrument='{$_POST['inst']}',  power='{$_POST['pow']}' WHERE id_instrument='{$_POST['inst']}' AND id_user='{$_POST['user']}';";
 
           if ($db->query($sql) === TRUE) {
-            unset($_SESSION["rig"]);
-            _output($_POST["action"]);
+            _output("editRig");
           } else
             throw new Exception("Error updating record: " . $db->error);
         } else {
-          $sql = "INSERT INTO rights (id_user, id_instrument, power) VALUES ('{$_POST['use']}', '{$_POST['inst']}', '{$_POST['pow']}');";
+          $sql = "INSERT INTO rights (id_user, id_instrument, power) VALUES ('{$_POST['user']}', '{$_POST['inst']}', '{$_POST['pow']}');";
 
           if ($db->query($sql) === TRUE)
-            _output("addRig");
+            _output($_POST["action"]);
 
           else
             throw new Exception("Error inserting record: " . $db->error);
@@ -388,7 +359,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 </head>
 
 <?php
-header("refresh:3; url=logout.php");
+header("refresh:2; url=logout.php");
 ?>
 
 </html>
