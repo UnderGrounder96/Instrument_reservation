@@ -33,7 +33,9 @@ static $content = "";
       </ul>
 
       <div class="hide row container" id="inst1">
-        <form class="col container forml" action="success.php" method="post">
+        <form class="col container" action="success.php" method="post">
+        <input type="hidden" name="action" value="addInst">
+
           <?php
           try {
 
@@ -49,7 +51,6 @@ static $content = "";
               if ($db->affected_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
                   $content = "
-                    <input type=\"hidden\" name=\"action\" value=\"editInst\">
                     <div class=\"form-group mt-3\">
                     <label>Model:
                     <input type=\"text\" class=\"form-control validate\" maxlength=\"30\" name=\"model\" autofocus value=\"{$row['model']}\" required>
@@ -57,8 +58,11 @@ static $content = "";
                     </div>
 
                     <div class=\"form-group\">
-                    <label>Is the device working? <br>1 - Yes, 0 - No.
-                    <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" min=\"0\" max=\"1\" value=\"1\" style=\"width:90px\" required>
+                    <label>Is the device working?
+                    <select class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" style=\"width:80px\" required>
+                    <option value=\"1\">yes</option>
+                    <option value=\"0\">no</option>
+                    </select>
                     </label>
                     </div>
 
@@ -70,7 +74,7 @@ static $content = "";
                 throw new Exception("Could not find record <br />" . $db->error);
               }
             } else {
-              $content = "<input type=\"hidden\" name=\"action\" value=\"addInst\">
+              $content = "
                 <div class=\"form-group mt-3\">
                 <label>Model:
                 <input type=\"text\" class=\"form-control validate\" maxlength=\"30\" name=\"model\" autofocus autocomplete=\"off\" required>
@@ -78,8 +82,11 @@ static $content = "";
                 </div>
 
                 <div class=\"form-group\">
-                <label>Is the device working? <br>1 - Yes, 0 - No.
-                <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" min=\"0\" max=\"1\" value=\"1\" style=\"width:90px\" required>
+                <label>Is the device working?
+                <select class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" style=\"width:80px\" required>
+                <option value=\"1\">yes</option>
+                <option value=\"0\">no</option>
+                </select>
                 </label>
                 </div>
 
@@ -121,7 +128,7 @@ static $content = "";
 
           if ($db->affected_rows > 0) {
           ?>
-            <table class="table table-condensed table-hover">
+            <table class="table table-condensed shadow table-hover">
               <tr>
                 <th>Id</th>
                 <th>Model</th>
@@ -140,7 +147,7 @@ static $content = "";
               </td>
 
               <td>
-                <a href='admin.php?inst={$row['id_instrument']}'>{$row['active']}</a>
+                <a href='admin.php?inst={$row['id_instrument']}'>"._check($row['active'])."</a>
               </td>
               </tr>";
           }
@@ -150,8 +157,8 @@ static $content = "";
       </div>
 
       <div class="row container hide" id="rig1">
-        <form class="col container forml" action="success.php" method="post">
-          <input type="hidden" name="action" value="editRig">
+        <form class="col container" action="success.php" method="post">
+          <input type="hidden" name="action" value="addRig">
 
           <?php
           try {
@@ -177,12 +184,16 @@ static $content = "";
               </div>
 
               <input type=\"hidden\" name=\"inst\" value=\"{$row['id_instrument']}\">
-              <input type=\"hidden\" name=\"use\" value=\"{$row['id_user']}\">
+              <input type=\"hidden\" name=\"user\" value=\"{$row['id_user']}\">
 
               <div class=\"form-group\">
-                <label>Rights: <br>0 - no access, 1 - user, 2 - admin
-                <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"pow\" min=\"0\" max=\"2\" value=\"1\" style=\"width:90px\" autofocus required>
-                </label>
+              <label>Rights:
+              <select class=\"form-control mt-2 col-xs-1 validate\" name=\"pow\" style=\"width:100px\" autofocus required>
+              <option value=\"2\">admin</option>
+              <option value=\"1\" selected>user</option>
+              <option value=\"0\">no access</option>
+              </select>
+              </label>
               </div>
 
               <div class=\"form-group\">
@@ -208,7 +219,7 @@ static $content = "";
 
             <div class=\"form-group\">
               <label> User:<br>
-                <select class=\"form-control\" name=\"use\" required>
+                <select class=\"form-control\" name=\"user\" required>
                   ";
               $sql = "SELECT id_user, username FROM users WHERE active>0;";
               $result = $db->query($sql);
@@ -222,9 +233,13 @@ static $content = "";
             </div>
 
             <div class=\"form-group\">
-              <label>Rights: <br>0 - no access, 1 - user, 2 - admin
-              <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"pow\" min=\"0\" max=\"2\" value=\"1\" style=\"width:90px\" required>
-              </label>
+            <label>Rights:
+            <select class=\"form-control mt-2 col-xs-1 validate\" name=\"pow\" style=\"width:100px\" autofocus required>
+            <option value=\"2\">admin</option>
+            <option value=\"1\" selected>user</option>
+            <option value=\"0\">no access</option>
+            </select>
+            </label>
             </div>
 
             <div class=\"form-group mt-2\">
@@ -265,7 +280,7 @@ static $content = "";
 
           if ($db->affected_rows > 0) {
           ?>
-            <table class="table table-condensed table-hover">
+            <table class="table table-condensed shadow table-hover">
               <tr>
                 <th>Id</th>
                 <th>User</th>
@@ -290,7 +305,7 @@ static $content = "";
               </td>
 
               <td>
-              <a href=\"admin.php?rig={$row['id_right']}\">{$row['power']}</a>
+              <a href=\"admin.php?rig={$row['id_right']}\">"._power($row['power'])."</a>
               </td>
               </tr>";
           }
@@ -300,7 +315,7 @@ static $content = "";
       </div>
 
       <div class="row container hide" id="user1">
-        <form class="col container forml" action="success.php" method="post" autocomplete="off">
+        <form class="col container" action="success.php" method="post" autocomplete="off">
           <?php
           try {
 
@@ -346,22 +361,28 @@ static $content = "";
                 </div>
 
                 <div class=\"form-group\">
-                  <label>Will the user be active? <br>1 - Yes, 0 - No.
-                  <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" min=\"0\" max=\"1\" value=\"{$row['active']}\"  style=\"width:90px\" required>
-                  </label>
-                </div>
+                <label>Will the user be active?
+                <select class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" style=\"width:80px\" required>
+                <option value=\"1\">yes</option>
+                <option value=\"0\">no</option>
+                </select>
+                </label>
+              </div>
 
-                <div class=\"form-group\">
-                  <label>Will the user be an admininstrator? <br>1 - Yes, 0 - No.
-                  <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"admin\" min=\"0\" max=\"1\" value=\"{$row['admin']}\"  style=\"width:90px\" autofocus required>
-                  </label>
-                </div>
+              <div class=\"form-group\">
+                <label>Will the user be an admininstrator?
+                <select class=\"form-control mt-2 col-xs-1 validate\" name=\"admin\" style=\"width:80px\" autofocus required>
+                <option value=\"1\">yes</option>
+                <option value=\"0\" selected>no</option>
+                </select>
+                </label>
+              </div>
 
                 <div class=\"form-group\">
                   <input type=\"Submit\" class=\"btn btn-outline-primary btn-block btn-sm\" value=\"Edit\" style=\"width:90px\" />
                 </div>";
               } else
-                throw new Exception("Error updating record: " . $db->error);
+                throw new Exception("Error updating record1: " . $db->error);
             } else {
               $content = "
               <input type=\"hidden\" name=\"action\" value=\"addUser\">
@@ -397,14 +418,20 @@ static $content = "";
               </div>
 
               <div class=\"form-group\">
-                <label>Will the user be active? <br>1 - Yes, 0 - No.
-                <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" min=\"0\" max=\"1\" value=\"1\" style=\"width:90px\" required>
+                <label>Will the user be active?
+                <select class=\"form-control mt-2 col-xs-1 validate\" name=\"active\" style=\"width:80px\" required>
+                <option value=\"1\">yes</option>
+                <option value=\"0\">no</option>
+                </select>
                 </label>
               </div>
 
               <div class=\"form-group\">
-                <label>Will the user be an admininstrator? <br>1 - Yes, 0 - No.
-                <input type=\"number\" class=\"form-control mt-2 col-xs-1 validate\" name=\"admin\" min=\"0\" max=\"1\" value=\"0\" style=\"width:90px\" autofocus required>
+                <label>Will the user be an admininstrator?
+                <select class=\"form-control mt-2 col-xs-1 validate\" name=\"admin\" style=\"width:80px\" autofocus required>
+                <option value=\"1\">yes</option>
+                <option value=\"0\" selected>no</option>
+                </select>
                 </label>
               </div>
 
@@ -445,7 +472,7 @@ static $content = "";
 
           if ($db->affected_rows > 0) {
           ?>
-            <table class="table table-condensed table-hover">
+            <table class="table table-condensed shadow table-hover">
               <tr>
                 <th>Id</th>
                 <th>Name</th>
@@ -481,11 +508,11 @@ static $content = "";
               </td>
 
               <td>
-              <a href=\"admin.php?use={$row['id_user']}\">{$row['admin']}</a>
+              <a href=\"admin.php?use={$row['id_user']}\">"._check($row['admin'])."</a>
               </td>
 
               <td>
-              <a href=\"admin.php?use={$row['id_user']}\">{$row['active']}</a>
+              <a href=\"admin.php?use={$row['id_user']}\">"._check($row['active'])."</a>
               </td>
               </tr>";
           }
@@ -504,7 +531,7 @@ static $content = "";
   <script>
     jQuery(() => {
       <?php
-      if (isset($_GET["use"]) || isset($_GET["er"])) {
+      if (isset($_GET["use"])) {
       ?>
         jQuery("#user").addClass("active");
         jQuery("#user1").show();

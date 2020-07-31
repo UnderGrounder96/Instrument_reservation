@@ -12,10 +12,10 @@ jQuery(() => {
     getHeight();
   });
 
-  jQuery(".validate").each(function () {
+  jQuery(".validate").each(function (){
     validate(this);
 
-    jQuery(this).keyup(function () {
+    jQuery(this).keyup(()=>{
       validate(this);
     });
   });
