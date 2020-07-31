@@ -61,6 +61,8 @@ Versioning
 ------------
 Version 1.6 - Current version
 
+Version 1.8 - Create an admin tab/page for instrument admin!
+
 Version 2.5(TBA) - Payment feature
 
 Author

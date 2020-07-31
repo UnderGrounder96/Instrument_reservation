@@ -50,39 +50,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     case "addRes":
       try {
-        $curDate = date("Y-m-d");
-        $nextWeek = date("Y-m-d", strtotime("+1 week"));
-        $date_in = date("Y-m-d", strtotime($_POST["dateIn"]));
-        $date_out = date("Y-m-d", strtotime($_POST["dateOut"]));
+        if (validateDate($_POST["dateIn"]) && validateDate($_POST["dateOut"])) {
+          $curDate = date("Y-m-d");
+          $nextTwoWeek = date("Y-m-d", strtotime("+2 week"));
+          $date_in = date("Y-m-d", strtotime($_POST["dateIn"]));
+          $date_out = date("Y-m-d", strtotime($_POST["dateOut"]));
 
-        if ($date_out >= $date_in && $nextWeek>$date_out) {
           if ($date_in >= $curDate && $date_out >= $curDate) {
-            $result = $db->query("SELECT date_in, date_out FROM reservations WHERE id_instrument='{$_SESSION['id_inst']}' AND DATE(date_out)>=CURDATE();");
+            if ($date_out >= $date_in && $nextTwoWeek >= $date_out) {
 
-            if ($db->affected_rows > 0)
-              while ($row = $result->fetch_assoc()) {
-                if (date("Y-m-d", strtotime($row["date_in"])) <= $date_in && date("Y-m-d", strtotime($row["date_out"])) >= $date_in)
-                  throw new Exception("Dates already taken, please select another dates.");
+              $result = $db->query("SELECT id_reservation, date_in, date_out, id_user FROM reservations WHERE id_instrument='{$_SESSION['id_inst']}' AND DATE(date_out)>=CURDATE();");
 
-                if (date("Y-m-d", strtotime($row["date_in"])) <= $date_out && date("Y-m-d", strtotime($row["date_out"])) >= $date_out)
-                  throw new Exception("Dates already taken, please select other dates.");
+              if ($db->affected_rows > 0)
+                while ($row = $result->fetch_assoc()) {
+                  if (_validateDates($row["date_in"], $row["date_out"], $date_in) && $row["id_user"] !== $_SESSION["id_user"]);
+                  if (_validateDates($row["date_in"], $row["date_out"], $date_out) && $row["id_user"] !== $_SESSION["id_user"]);
+                  if (_validateDates($date_in, $date_out, $row["date_out"]) && $row["id_user"] !== $_SESSION["id_user"]);
+                  if (_validateDates($date_in, $date_out, $row["date_out"]) && $row["id_user"] !== $_SESSION["id_user"]);
+                }
+
+              $description = testInput($_POST["description"]);
+
+              $result = $db->query("SELECT id_reservation, date_in, date_out FROM reservations WHERE id_instrument='{$_SESSION['id_inst']}' AND DATE(date_out)>=CURDATE() AND id_user='{$_SESSION['id_user']}';");
+              $row = $result->fetch_assoc();
+
+              if ($db->affected_rows > 0) {
+
+                $sql = "UPDATE reservations SET date_in='{$date_in}', date_out='{$date_out}', description='{$description}' WHERE id_reservation='{$row['id_reservation']}';";
+
+                if ($db->query($sql) === TRUE) {
+                  _output("editRes");
+                } else
+                  throw new Exception("Error inserting record: " . $db->error);
+              } else {
+                $sql = "INSERT INTO reservations (date_in, date_out, description, id_instrument, id_user) VALUES ('{$date_in}', '{$date_out}', '{$description}', '{$_SESSION['id_inst']}', '{$_SESSION['id_user']}');";
+
+                if ($db->query($sql) === TRUE) {
+                  _output($_POST["action"]);
+                } else
+                  throw new Exception("Error inserting the record: " . $db->error);
               }
-
-            $_POST['id_instrument'] = testInput($_POST['id_instrument']);
-            $description = testInput($_POST["description"]);
-
-
-            $sql = "INSERT INTO reservations (date_in, date_out, description, id_instrument, id_user) VALUES ('{$date_in}', '{$date_out}', '{$description}', '{}', '{$_SESSION['id_user']}');";
-
-            if ($db->query($sql) === TRUE) {
-              //unset($_SESSION["id_inst"]);
-              _output($_POST["action"]);
             } else
-              throw new Exception("Error inserting the record: " . $db->error);
+              throw new Exception("Please select appropriate dates. Within two weeks!");
           } else
-            throw new Exception("Please select appropriate dates. Within a week!");
+            throw new Exception("Please select dates between today and within two weeks!");
         } else
-          throw new Exception("Please select dates between today and within a week!");
+          throw new Exception("Please veify the dates.");
       } catch (Exception $e) {
         $_SESSION["error"] = $e->getMessage();
         header("location: profile.php?inst={$_SESSION['id_inst']}");
@@ -91,62 +104,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
       break;
 
 
-    case "editRes":
-      try {
-        if (validateDate($_POST["dateIn1"]) && validateDate($_POST["dateOut1"])) {
-          $_SESSION["date_in"] = testInput(date("Y-m-d H:i:s", strtotime($_POST["dateIn1"])));
-          $_SESSION["date_out"] = testInput(date("Y-m-d H:i:s", strtotime($_POST["dateOut1"])));
-
-          if ($_SESSION["date_out"] >= $_SESSION["date_in"]) {
-            $sql = "SELECT id_instrument FROM reservations WHERE id_reservation='{$_SESSION['res']}';";
-            $result = $db->query($sql);
-            $row = $result->fetch_assoc();
-
-            $_SESSION["id_inst"] = $row["id_instrument"];
-
-            if ($db->affected_rows > 0) {
-              $sql = "SELECT id_reservation, date_in, date_out FROM reservations WHERE id_instrument='{$_SESSION['id_inst']}' AND DATE(date_out)>=CURDATE();";
-              $result = $db->query($sql);
-
-              if ($db->affected_rows > 0)
-                while ($row = $result->fetch_assoc()) {
-                  if (date("Y-m-d", strtotime($row["date_in"])) <= $_SESSION["date_in"] && date("Y-m-d", strtotime($row["date_out"])) >= $_SESSION["date_in"] && $row["id_reservation"] != $_SESSION['res'])
-                    throw new Exception("Dates already taken, please select another dates.");
-
-                  if (date("Y-m-d", strtotime($row["date_in"])) <= $_SESSION["date_out"] && date("Y-m-d", strtotime($row["date_out"])) >= $_SESSION["date_out"] && $row["id_reservation"] != $_SESSION['res'])
-                    throw new Exception("Dates already taken, please select other dates.");
-                }
-
-              $_SESSION["description"] = testInput($_POST["description"]);
-
-              $sql = "UPDATE reservations SET date_in='{$_SESSION['date_in']}', date_out='{$_SESSION['date_out']}', description='{$_SESSION['description']}' WHERE id_reservation='{$_SESSION['res']}';";
-
-              if ($db->query($sql) === TRUE) {
-                unset($_SESSION["res"]);
-                //unset($_SESSION["id_inst"]);
-                unset($_SESSION["date_in"]);
-                unset($_SESSION["date_out"]);
-                unset($_SESSION["description"]);
-
-                _output($_POST["action"]);
-              } else
-                throw new Exception("Error inserting record: " . $db->error);
-            }
-          } else
-            throw new Exception("Please select appropriate dates.");
-        } else
-          throw new Exception("Please veify the dates.");
-      } catch (Exception $e) {
-        $_SESSION["err1"] = $e->getMessage();
-        header("location: profile.php?res={$_SESSION['res']}");
-      }
-
-      break;
-
-
     case "remRes":
       try {
-        $sql = "DELETE FROM reservations WHERE id_reservation='{$_POST['id_reservation']}';";
+        $sql = "DELETE FROM reservations WHERE id_reservation='{$_SESSION['id_res']}';";
 
         if ($db->query($sql) === TRUE)
           _output($_POST["action"]);

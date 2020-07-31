@@ -128,7 +128,7 @@ static $content = "";
 
           if ($db->affected_rows > 0) {
           ?>
-            <table class="table table-condensed table-hover">
+            <table class="table table-condensed shadow table-hover">
               <tr>
                 <th>Id</th>
                 <th>Model</th>
@@ -280,7 +280,7 @@ static $content = "";
 
           if ($db->affected_rows > 0) {
           ?>
-            <table class="table table-condensed table-hover">
+            <table class="table table-condensed shadow table-hover">
               <tr>
                 <th>Id</th>
                 <th>User</th>
@@ -472,7 +472,7 @@ static $content = "";
 
           if ($db->affected_rows > 0) {
           ?>
-            <table class="table table-condensed table-hover">
+            <table class="table table-condensed shadow table-hover">
               <tr>
                 <th>Id</th>
                 <th>Name</th>

@@ -8,7 +8,7 @@ function testInput($data)
 }
 
 // with DateTime you can make the shortest date&time validator for all formats.
-function validateDate($date, $format = 'Y-m-d H:i:s')
+function validateDate($date, $format = 'Y-m-d')
 {
   $d = DateTime::createFromFormat($format, $date);
 
@@ -43,7 +43,7 @@ function _output($action)
       break;
 
     case "addRes":
-      _print("reservation", "added", "user");;
+      _print("reservation", "added", "user");
       break;
 
     case "editRes":
@@ -56,11 +56,19 @@ function _output($action)
   }
 }
 
+function _validateDates($rowDateIn, $rowDateOut, $date)
+{
+  if (date("Y-m-d", strtotime($rowDateIn)) <= $date && date("Y-m-d", strtotime($rowDateOut)) >= $date)
+    throw new Exception("Dates already taken " . $date . ", please select another date.");
+
+  return true;
+}
+
 function _print($par1, $par2, $par3)
 {
 
   if ($par3 == "user")
-    echo "<body onLoad=\"loaded()\" style=\"font-family:Arial, Helvetica, sans-serif; font-size:14px;\"><h3><b>The " . $par1 . " data was " . $par2 . " successfully click <a href=\"user.php?inst={$_SESSION['idInst']}\">here</a> to go back...</b></h3></body>";
+    echo "<body onLoad=\"loaded()\" style=\"font-family:Arial, Helvetica, sans-serif; font-size:14px;\"><h3><b>The " . $par1 . " data was " . $par2 . " successfully click <a href=\"user.php?inst={$_SESSION['id_inst']}\">here</a> to go back...</b></h3></body>";
   else
     echo "<body onLoad=\"loaded()\" style=\"font-family:Arial, Helvetica, sans-serif; font-size:14px;\"><h3><b>The " . $par1 . " data was " . $par2 . " successfully click <a href=\"admin.php\">here</a> to go back...</b></h3></body>";
 }
@@ -82,5 +90,3 @@ function _power($var)
 
   return "no access";
 }
-
-?>
