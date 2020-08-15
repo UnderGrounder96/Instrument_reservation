@@ -1,8 +1,8 @@
 <head>
 
   <?php
-    if (isset($title_page))
-      echo '<title>' . $title_page . '</title>';
+  if (isset($title_page))
+    echo '<title>' . $title_page . '</title>';
   ?>
 
   <meta name="robots" content="noindex" />

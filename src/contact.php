@@ -7,7 +7,7 @@ $title_page = "Contact";
 require_once("head.php");
 ?>
 
-<body>
+<body class="container shadow">
   <noscript> Please turn on JavaScript or change browsers!</noscript>
 
   <?php
@@ -20,7 +20,7 @@ require_once("head.php");
       <h1>
         <strong>Contact</strong>
       </h1>
-<pre class="lead">
+      <pre class="lead">
 <strong>IR</strong>
 Independency street n. 7
 058-5467 NeverLand

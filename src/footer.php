@@ -1,6 +1,6 @@
 <footer class="page-footer align-bottom py-3 my-3 border-top">
   <div class="footer-copyright pb-3 text-center">
-   <?php echo '&copy; ' . date("Y") . ' <strong>Company</strong>. All rights reserved.';?>
+    <?php echo '&copy; ' . date("Y") . ' <strong>Company</strong>. All rights reserved.'; ?>
   </div>
 </footer>
 

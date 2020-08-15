@@ -1,4 +1,4 @@
-CREATE DATABASE  IF NOT EXISTS `reservation` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE  IF NOT EXISTS `reservation` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `reservation`;
 -- MySQL dump 10.13  Distrib 8.0.18, for Win64 (x86_64)
 --
@@ -30,7 +30,7 @@ CREATE TABLE `instruments` (
   `active` tinyint(1) unsigned zerofill NOT NULL,
   PRIMARY KEY (`id_instrument`),
   UNIQUE KEY `idInstrument_UNIQUE` (`id_instrument`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `instruments` (
 
 LOCK TABLES `instruments` WRITE;
 /*!40000 ALTER TABLE `instruments` DISABLE KEYS */;
-INSERT INTO `instruments` VALUES (1,'SIMS',1),(2,'Agilent 5500',1),(3,'Nanosurf',1);
+INSERT INTO `instruments` VALUES (1,'SIMS',1),(2,'Agilent 5500',1),(3,'Nanosurf',1),(4,'BRIO',1),(5,'Alpha a3600',1),(6,'WEB007',1);
 /*!40000 ALTER TABLE `instruments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -55,7 +55,7 @@ CREATE TABLE `reservations` (
   `id_reservation` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `date_in` datetime NOT NULL,
   `date_out` datetime NOT NULL,
-  `description` varchar(50) NOT NULL,
+  `description` varchar(90) NOT NULL,
   `id_instrument` int(10) unsigned NOT NULL,
   `id_user` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id_reservation`),
@@ -87,7 +87,7 @@ CREATE TABLE `rights` (
   `id_instrument` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id_right`),
   UNIQUE KEY `idRights_UNIQUE` (`id_right`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -97,7 +97,7 @@ CREATE TABLE `rights` (
 
 LOCK TABLES `rights` WRITE;
 /*!40000 ALTER TABLE `rights` DISABLE KEYS */;
-INSERT INTO `rights` VALUES (1,1,1,1),(2,2,1,2);
+INSERT INTO `rights` VALUES (1,2,1,1),(2,1,1,2),(3,0,1,4),(4,0,3,6),(5,1,1,6);
 /*!40000 ALTER TABLE `rights` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -113,13 +113,13 @@ CREATE TABLE `users` (
   `first_name` varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `last_name` varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `username` varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `pass` varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `pass` varchar(60) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `email` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `admin` tinyint(1) unsigned NOT NULL,
   `active` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `idUser_UNIQUE` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,7 +129,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Lucio','Afonso','lucio','1234','undergrounder96@yahoo.com',1,1),(2,'Dummy','Test','user','2345','my@email.com',0,1);
+INSERT INTO `users` VALUES (1,'Lucio','Afonso','lucio','$2y$10$MtI6li6oUCIu5N4KzqA.dOwKoVkNjeMaKHtAa4vIoArynLUj.LCSC','undergrounder96@yahoo.com',1,1),(2,'Geovani','Teca','gteca123','$2y$10$7I2UQW6PxglTOvSXr/aAo.BwhaiVqsifUhWjth0GqJiiDHx0cCQ4S','gteca123@email.com',0,1),(3,'Alain','Afonso','aafonso','$2y$10$7bn5aF0pGu.j8YoU6pw8X.Ov2lriR8RtgovoyxgWpouj5Wye4jtSi','alain@email.com',0,1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -150,4 +150,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-14 13:58:48
+-- Dump completed on 2020-07-30 20:30:04
